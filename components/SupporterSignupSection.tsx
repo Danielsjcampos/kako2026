@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Heart, CheckCircle, ShieldCheck } from 'lucide-react';
 import { API_URL } from '../constants';
+import { supabase, T } from '../lib/supabaseClient';
 
 const SupporterSignupSection: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', titleNumber: '' });
@@ -14,23 +15,14 @@ const SupporterSignupSection: React.FC = () => {
 
     try {
       // Send titled number as title_number to match backend expectations
-      const payload = {
-        name: formData.name,
-        title_number: formData.titleNumber
-      };
+      const { error } = await supabase
+        .from(T.supporters)
+        .insert([{
+          name: formData.name,
+          title_number: formData.titleNumber
+        }]);
 
-      console.log('Sending supporter data:', payload);
-
-      const response = await fetch(`${API_URL}/api/supporters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao registrar apoio');
-      }
+      if (error) throw error;
 
       setIsSuccess(true);
     } catch (err: any) {

@@ -11,6 +11,7 @@ import TransparencySection from './components/TransparencySection';
 import FAQSection from './components/FAQSection';
 import SupporterSignupSection from './components/SupporterSignupSection';
 import { KAKO_BIO, API_URL } from './constants';
+import { supabase, T } from './lib/supabaseClient';
 import { Lock, Code2 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -21,18 +22,22 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [suppRes, setRes] = await Promise.all([
-          fetch(`${API_URL}/api/supporters`),
-          fetch(`${API_URL}/api/settings`)
+        const [
+          { data: suppData },
+          { data: settingsRows }
+        ] = await Promise.all([
+          supabase.from(T.supporters).select('*'),
+          supabase.from(T.settings).select('*')
         ]);
-        const suppData = await suppRes.json();
-        const settingsData = await setRes.json();
+
+        if (suppData) setSupporterCount(suppData.length);
         
-        if (Array.isArray(suppData)) {
-          setSupporterCount(suppData.length);
-        }
-        if (settingsData && typeof settingsData === 'object' && !settingsData.error) {
-          setSettings(settingsData);
+        if (settingsRows) {
+          const settingsMap: Record<string, string> = {};
+          settingsRows.forEach(row => {
+            settingsMap[row.key] = row.value;
+          });
+          setSettings(settingsMap);
         }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -92,7 +97,7 @@ const App: React.FC = () => {
             <div className="bg-gray-50 rounded-[4rem] p-8 lg:p-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
               <div className="flex-1">
                 <img 
-                  src={settings.bio_image ? `${API_URL}${settings.bio_image}` : "https://www.aesj.com.br/wp-content/uploads/2021/04/espaco-eventos002.jpg"} 
+                  src={settings.bio_image ? (settings.bio_image.startsWith('http') ? settings.bio_image : `${API_URL}${settings.bio_image}`) : "https://www.aesj.com.br/wp-content/uploads/2021/04/espaco-eventos002.jpg"} 
                   alt="Clube AESJ" 
                   className="rounded-[3rem] shadow-2xl"
                 />

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, Calendar, FileText, MessageSquare, Wrench, Users, Hammer, Car, Lock, Waves, TrendingUp } from 'lucide-react';
 import { Proposal } from '../types';
 import { API_URL } from '../constants';
+import { supabase, T } from '../lib/supabaseClient';
 import HolographicCard from './ui/holographic-card';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -20,11 +21,14 @@ const Proposals: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProposals = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/proposals`);
-        const data = await response.json();
-        setProposals(data);
+      const fetchProposals = async () => {
+        try {
+          const { data, error } = await supabase
+            .from(T.proposals)
+            .select('*')
+            .order('id', { ascending: true });
+          
+          if (data) setProposals(data);
       } catch (err) {
         console.error('Error fetching proposals:', err);
       } finally {

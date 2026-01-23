@@ -3,6 +3,7 @@ import React from 'react';
 import { Send, CheckCircle2 } from 'lucide-react';
 import { FeedbackMessage } from '../types';
 import { API_URL } from '../constants';
+import { supabase, T } from '../lib/supabaseClient';
 
 const Ombudsman: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = React.useState(false);
@@ -19,23 +20,17 @@ const Ombudsman: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/suggestions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { error } = await supabase
+        .from(T.suggestions)
+        .insert([{
           name: formData.name,
-          titleNumber: formData.titleNumber,
+          title_number: formData.titleNumber,
           category: formData.category,
           message: formData.message,
-          isAnonymous: formData.name === 'Anônimo'
-        }),
-      });
+          is_anonymous: formData.name === 'Anônimo'
+        }]);
 
-      if (!response.ok) {
-        throw new Error('Erro ao enviar sugestão');
-      }
+      if (error) throw error;
 
       setIsSubmitted(true);
       setFormData({ name: '', titleNumber: '', category: 'Sugestão de Melhoria', message: '' });

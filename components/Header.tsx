@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ settings }) => {
           <div className="flex items-center">
             {settings.site_logo ? (
               <img 
-                src={`${API_URL}${settings.site_logo}`} 
+                src={settings.site_logo?.startsWith('http') ? settings.site_logo : `${API_URL}${settings.site_logo}`} 
                 alt="Logo AESJ" 
                 className="h-10 md:h-12 w-auto object-contain"
               />

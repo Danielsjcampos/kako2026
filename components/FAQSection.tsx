@@ -16,7 +16,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ settings }) => {
         <div className="text-center mb-16">
           {settings.site_logo ? (
             <img 
-              src={`${API_URL}${settings.site_logo}`} 
+              src={settings.site_logo?.startsWith('http') ? settings.site_logo : `${API_URL}${settings.site_logo}`} 
               alt="Logo AESJ" 
               className="h-16 md:h-20 w-auto object-contain mx-auto mb-6 opacity-80"
             />

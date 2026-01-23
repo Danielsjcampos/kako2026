@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { FeedbackMessage, Participant, Supporter, Proposal } from '../types';
 import { API_URL } from '../constants';
+import { supabase, T } from '../lib/supabaseClient';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -58,6 +59,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   // Editing states
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auth persistence check
@@ -72,30 +74,33 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
     const fetchData = async () => {
       try {
-        const [sugRes, partRes, suppRes, propRes, setRes, usersRes] = await Promise.all([
-          fetch(`${API_URL}/api/suggestions`),
-          fetch(`${API_URL}/api/participants`),
-          fetch(`${API_URL}/api/supporters`),
-          fetch(`${API_URL}/api/proposals`),
-          fetch(`${API_URL}/api/settings`),
-          fetch(`${API_URL}/api/admin-users`)
+        const [
+          { data: sugData },
+          { data: partData },
+          { data: suppData },
+          { data: propData },
+          { data: settingsRows },
+          { data: usersData }
+        ] = await Promise.all([
+          supabase.from(T.suggestions).select('*').order('created_at', { ascending: false }),
+          supabase.from(T.participants).select('*').order('display_order', { ascending: true }),
+          supabase.from(T.supporters).select('*').order('created_at', { ascending: false }),
+          supabase.from(T.proposals).select('*').order('id', { ascending: true }),
+          supabase.from(T.settings).select('*'),
+          supabase.from(T.admin_users).select('id, email').order('id', { ascending: true })
         ]);
         
-        const [sData, pData, sSupData, prData, settingsData, uData] = await Promise.all([
-          sugRes.json(),
-          partRes.json(),
-          suppRes.json(),
-          propRes.json(),
-          setRes.json(),
-          usersRes.json()
-        ]);
+        setSuggestions(sugData || []);
+        setParticipants(partData || []);
+        setSupporters(suppData || []);
+        setProposals(propData || []);
+        setAdminUsers(usersData || []);
         
-        setSuggestions(Array.isArray(sData) ? sData : []);
-        setParticipants(Array.isArray(pData) ? pData : []);
-        setSupporters(Array.isArray(sSupData) ? sSupData : []);
-        setProposals(Array.isArray(prData) ? prData : []);
-        setAdminUsers(Array.isArray(uData) ? uData : []);
-        setSettings(settingsData && !settingsData.error ? settingsData : {});
+        const settingsMap: Record<string, string> = {};
+        settingsRows?.forEach(row => {
+          settingsMap[row.key] = row.value;
+        });
+        setSettings(settingsMap);
       } catch (err) {
         console.error('Error fetching data:', err);
       }
@@ -108,20 +113,21 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     e.preventDefault();
     setIsLoginLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginForm)
-      });
-      const data = await response.json();
-      if (data.success) {
+      const { data, error } = await supabase
+        .from(T.admin_users)
+        .select('*')
+        .eq('email', loginForm.email)
+        .eq('password', loginForm.password)
+        .single();
+
+      if (data) {
         setIsLoggedIn(true);
-        localStorage.setItem('aesj_admin_session', JSON.stringify(data.user));
+        localStorage.setItem('aesj_admin_session', JSON.stringify({ email: data.email }));
       } else {
         alert('E-mail ou senha incorretos.');
       }
     } catch (err) {
-      alert('Erro ao conectar ao servidor.');
+      alert('Erro ao conectar ao banco de dados.');
     } finally {
       setIsLoginLoading(false);
     }
@@ -135,22 +141,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const deleteItem = async (id: number | string, type: string) => {
     if (!confirm('Tem certeza que deseja excluir?')) return;
     
-    const endpointMap: Record<string, string> = {
-      'suggestions': 'suggestions',
-      'participants': 'participants',
-      'supporters': 'supporters',
-      'proposals': 'proposals',
-      'users': 'admin-users'
-    };
-
-    const typeKey = endpointMap[type] || type;
-
     try {
-      const response = await fetch(`${API_URL}/api/${typeKey}/${id}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) throw new Error('Erro ao excluir');
+      const tableName = T[type as keyof typeof T] || T.admin_users; // Fallback to users map if complex
+      let finalTable = tableName;
+      if (type === 'users') finalTable = T.admin_users;
+
+      const { error } = await supabase.from(finalTable).delete().eq('id', id);
+      if (error) throw error;
       
       if (type === 'suggestions') {
         setSuggestions(suggestions.filter(s => s.id != id));
@@ -174,25 +171,21 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     const isEditing = !!editingItem.id;
     const method = isEditing ? 'PUT' : 'POST';
     
-    const endpointMap: Record<string, string> = {
-      'proposals': 'proposals',
-      'participants': 'participants',
-      'users': 'admin-users'
-    };
-    
-    const typeKey = endpointMap[type] || type;
-    const url = `${API_URL}/api/${typeKey}${isEditing ? `/${editingItem.id}` : ''}`;
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingItem)
-      });
+      const tableName = T[type as keyof typeof T] || T.admin_users;
+      let finalTable = tableName;
+      if (type === 'users') finalTable = T.admin_users;
+
+      let result;
+      if (isEditing) {
+        result = await supabase.from(finalTable).update(editingItem).eq('id', editingItem.id).select().single();
+      } else {
+        const { id, ...newItem } = editingItem;
+        result = await supabase.from(finalTable).insert([newItem]).select().single();
+      }
       
-      if (!response.ok) throw new Error('Erro ao salvar');
-      
-      const savedItem = await response.json();
+      if (result.error) throw result.error;
+      const savedItem = result.data;
       
       if (type === 'proposals') {
         if (isEditing) setProposals(proposals.map(p => p.id === savedItem.id ? savedItem : p));
@@ -216,28 +209,38 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await fetch(`${API_URL}/api/upload`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      setEditingItem({ ...editingItem, photo: data.url });
-    } catch (err) {
-      alert('Erro ao fazer upload da imagem');
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = fileName; // Upload direct to root of bucket for simplicity
+
+      const { data, error } = await supabase.storage
+        .from('uploads')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploads')
+        .getPublicUrl(filePath);
+
+      setEditingItem({ ...editingItem, photo: publicUrl });
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      alert(`Erro: ${err.message || 'Erro ao subir imagem'}. Certifique-se que o bucket "uploads" existe e tem permissão de INSERT para usuários anônimos.`);
     }
   };
 
   const updateSetting = async (key: string, value: string) => {
     try {
-      await fetch(`${API_URL}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, value })
-      });
+      const { error } = await supabase
+        .from(T.settings)
+        .upsert({ key, value }, { onConflict: 'key' });
+      
+      if (error) throw error;
       setSettings(prev => ({ ...prev, [key]: value }));
     } catch (err) {
       alert('Erro ao salvar configuração');
@@ -365,11 +368,24 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-6xl h-[90vh] rounded-[3rem] shadow-2xl flex overflow-hidden border border-white/20">
+    <div className="fixed inset-0 z-[100] bg-gray-950/80 backdrop-blur-sm flex items-center justify-center sm:p-4">
+      <div className="bg-white w-full sm:max-w-6xl h-screen sm:h-[90vh] sm:rounded-[3rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/20">
         
+        {/* Mobile Header Overlay */}
+        <div className="md:hidden bg-blue-950 text-white p-4 flex justify-between items-center z-[110]">
+          <div>
+            <h2 className="text-xl font-black tracking-tighter">PORTAL <span className="text-blue-400">KAKO</span></h2>
+          </div>
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-blue-600 rounded-xl">
+            {isSidebarOpen ? <X size={24} /> : <LayoutDashboard size={24} />}
+          </button>
+        </div>
+
         {/* Sidebar */}
-        <div className="w-64 bg-blue-950 text-white p-8 flex flex-col">
+        <div className={`
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          fixed md:relative top-0 left-0 bottom-0 z-[105] md:z-auto w-72 bg-blue-950 text-white p-8 flex flex-col transition-transform duration-300 ease-in-out
+        `}>
           <div className="mb-12">
             <h2 className="text-2xl font-black tracking-tighter">PORTAL <span className="text-blue-400">KAKO</span></h2>
             <p className="text-xs text-blue-300 font-bold uppercase tracking-widest mt-1">Gestão Interna 2026</p>
@@ -387,7 +403,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => {
+                  setActiveTab(tab.id as any);
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold ${
                   activeTab === tab.id ? 'bg-blue-600 shadow-lg shadow-blue-900/50' : 'hover:bg-white/5'
                 }`}
@@ -414,12 +433,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-12">
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-6 md:p-12 pb-24 md:pb-12">
           
           {activeTab === 'dashboard' && (
             <div>
               <h3 className="text-3xl font-black text-blue-950 mb-8">Visão Geral</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                   <Package className="text-blue-600 mb-4" size={32} />
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Propostas</p>
@@ -499,13 +518,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   <Plus size={20} /> Novo Membro
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {participants.map((p) => (
                   <div key={p.id} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center justify-between group">
                     <div className="flex items-center gap-4 cursor-pointer" onClick={() => { setEditingItem(p); setIsModalOpen(true); }}>
-                      <div className="w-16 h-16 bg-blue-100 rounded-2xl overflow-hidden flex items-center justify-center">
+                      <div className="w-16 h-16 bg-blue-100 rounded-2xl overflow-hidden flex items-center justify-center shrink-0">
                         {p.photo ? (
-                          <img src={`${API_URL}${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
+                          <img src={p.photo?.startsWith('http') ? p.photo : `${API_URL}${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
                         ) : (
                           <User size={32} className="text-blue-400" />
                         )}
@@ -641,7 +660,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.site_logo ? (
-                           <img src={`${API_URL}${settings.site_logo}`} className="w-full h-full object-contain p-2" />
+                           <img src={settings.site_logo?.startsWith('http') ? settings.site_logo : `${API_URL}${settings.site_logo}`} className="w-full h-full object-contain p-2" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -651,11 +670,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const formData = new FormData();
-                          formData.append('file', file);
-                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
-                          const data = await res.json();
-                          updateSetting('site_logo', data.url);
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `settings/${Math.random()}.${fileExt}`;
+                            const { data, error } = await supabase.storage.from('uploads').upload(fileName, file);
+                            if (error) throw error;
+                            const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(fileName);
+                            updateSetting('site_logo', publicUrl);
+                          } catch (err) {
+                            alert('Erro ao subir logotipo');
+                          }
                         }}
                       />
                       <label htmlFor="logo_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
@@ -671,7 +695,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.share_image ? (
-                           <img src={`${API_URL}${settings.share_image}`} className="w-full h-full object-cover" />
+                           <img src={settings.share_image?.startsWith('http') ? settings.share_image : `${API_URL}${settings.share_image}`} className="w-full h-full object-cover" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -681,11 +705,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const formData = new FormData();
-                          formData.append('file', file);
-                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
-                          const data = await res.json();
-                          updateSetting('share_image', data.url);
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `settings/${Math.random()}.${fileExt}`;
+                            const { data, error } = await supabase.storage.from('uploads').upload(fileName, file);
+                            if (error) throw error;
+                            const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(fileName);
+                            updateSetting('share_image', publicUrl);
+                          } catch (err) {
+                            alert('Erro ao subir capa');
+                          }
                         }}
                       />
                       <label htmlFor="share_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
@@ -721,7 +750,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.hero_image ? (
-                           <img src={`${API_URL}${settings.hero_image}`} className="w-full h-full object-cover" />
+                           <img src={settings.hero_image?.startsWith('http') ? settings.hero_image : `${API_URL}${settings.hero_image}`} className="w-full h-full object-cover" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -731,11 +760,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const formData = new FormData();
-                          formData.append('file', file);
-                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
-                          const data = await res.json();
-                          updateSetting('hero_image', data.url);
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `hero/${Math.random()}.${fileExt}`;
+                            const { data, error } = await supabase.storage.from('uploads').upload(fileName, file);
+                            if (error) throw error;
+                            const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(fileName);
+                            updateSetting('hero_image', publicUrl);
+                          } catch (err) {
+                            alert('Erro ao subir imagem hero');
+                          }
                         }}
                       />
                       <label htmlFor="hero_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
@@ -751,7 +785,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.bio_image ? (
-                           <img src={`${API_URL}${settings.bio_image}`} className="w-full h-full object-cover" />
+                           <img src={settings.bio_image?.startsWith('http') ? settings.bio_image : `${API_URL}${settings.bio_image}`} className="w-full h-full object-cover" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -761,11 +795,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const formData = new FormData();
-                          formData.append('file', file);
-                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
-                          const data = await res.json();
-                          updateSetting('bio_image', data.url);
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `bio/${Math.random()}.${fileExt}`;
+                            const { data, error } = await supabase.storage.from('uploads').upload(fileName, file);
+                            if (error) throw error;
+                            const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(fileName);
+                            updateSetting('bio_image', publicUrl);
+                          } catch (err) {
+                            alert('Erro ao subir imagem bio');
+                          }
                         }}
                       />
                       <label htmlFor="bio_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
@@ -784,11 +823,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
       {/* Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[110] bg-blue-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-[3rem] p-12 shadow-2xl relative">
-            <button onClick={() => { setIsModalOpen(false); setEditingItem(null); }} className="absolute top-8 right-8 text-gray-400 hover:text-gray-600">
+          <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-12 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => { setIsModalOpen(false); setEditingItem(null); }} className="absolute top-6 right-6 sm:top-8 sm:right-8 text-gray-400 hover:text-gray-600">
               <X size={28} />
             </button>
-            <h3 className="text-3xl font-black text-blue-950 mb-10">
+            <h3 className="text-2xl sm:text-3xl font-black text-blue-950 mb-6 sm:mb-10">
               {editingItem?.id ? 'Editar' : 'Novo'} {
                 activeTab === 'proposals' ? 'Proposta' : 
                 activeTab === 'users' ? 'Usuário Admin' : 'Membro'
@@ -798,7 +837,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             <form onSubmit={handleSaveItem} className="space-y-6">
               {activeTab === 'proposals' ? (
                 <>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Título</label>
                       <input 
@@ -832,7 +871,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">🎯 Objetivo</label>
                       <input 
@@ -886,7 +925,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="relative group">
                       <div className="w-32 h-32 bg-blue-50 rounded-[2rem] overflow-hidden border-2 border-dashed border-blue-200 flex items-center justify-center">
                         {editingItem.photo ? (
-                          <img src={`${API_URL}${editingItem.photo}`} className="w-full h-full object-cover" />
+                          <img src={editingItem.photo?.startsWith('http') ? editingItem.photo : `${API_URL}${editingItem.photo}`} className="w-full h-full object-cover" />
                         ) : <Camera size={40} className="text-blue-200" />}
                       </div>
                       <input type="file" ref={fileInputRef} hidden onChange={handleFileUpload} />
@@ -899,7 +938,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       </button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Nome</label>
                       <input 
@@ -930,17 +969,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </>
               )}
 
-              <div className="flex gap-4 pt-6">
+              <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <button 
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+                  className="w-full sm:flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-900/20"
                 >
                   Confirmar e Salvar
                 </button>
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-8 py-5 border border-gray-100 rounded-2xl font-black text-gray-400 uppercase tracking-widest hover:bg-gray-50"
+                  className="w-full sm:px-8 py-5 border border-gray-100 rounded-2xl font-black text-gray-400 uppercase tracking-widest hover:bg-gray-50"
                 >
                   Cancelar
                 </button>

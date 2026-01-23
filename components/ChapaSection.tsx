@@ -3,17 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { Participant } from '../types';
 import { User } from 'lucide-react';
 import { API_URL } from '../constants';
+import { supabase, T } from '../lib/supabaseClient';
 
 const ChapaSection: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchParticipants = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/participants`);
-        const data = await response.json();
-        setParticipants(data);
+      const fetchParticipants = async () => {
+        try {
+          const { data, error } = await supabase
+            .from(T.participants)
+            .select('*')
+            .order('display_order', { ascending: true });
+          
+          if (data) setParticipants(data);
       } catch (err) {
         console.error('Error fetching participants:', err);
       } finally {
@@ -54,7 +58,7 @@ const ChapaSection: React.FC = () => {
                 <div className="aspect-[4/5] overflow-hidden relative">
                   {member.photo ? (
                     <img 
-                      src={`${API_URL}${member.photo}`} 
+                      src={member.photo.startsWith('http') ? member.photo : `${API_URL}${member.photo}`} 
                       alt={member.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0" 
                     />
