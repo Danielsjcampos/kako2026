@@ -36,5 +36,6 @@ export interface Supporter {
   id?: number;
   name: string;
   title_number: string;
+  phone?: string;
   created_at: string;
 }

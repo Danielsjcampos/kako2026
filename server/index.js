@@ -111,7 +111,19 @@ const initDb = async () => {
       ALTER TABLE supporters ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
       ALTER TABLE participants ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
       ALTER TABLE participants ADD COLUMN IF NOT EXISTS bio TEXT;
+      ALTER TABLE participants ADD COLUMN IF NOT EXISTS bio TEXT;
       ALTER TABLE participants ADD COLUMN IF NOT EXISTS photo TEXT;
+
+      -- Ensure kako tables exist for compatibility
+      CREATE TABLE IF NOT EXISTS kako_supporters (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        title_number TEXT,
+        phone TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      ALTER TABLE kako_supporters ADD COLUMN IF NOT EXISTS phone TEXT;
+      ALTER TABLE kako_supporters ADD COLUMN IF NOT EXISTS title_number TEXT;
     `);
 
     // Seed Admin User
