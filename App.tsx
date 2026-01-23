@@ -164,6 +164,13 @@ const App: React.FC = () => {
               <a href="#ouvidoria" className="text-gray-600 hover:text-red-600 font-bold transition-colors">Ouvidoria</a>
             </div>
           </div>
+
+          <div className="mb-8 text-center">
+             <p className="text-gray-400 text-xs font-medium max-w-2xl mx-auto border border-gray-100 bg-gray-50 rounded-lg p-4">
+               <strong className="text-red-500 font-bold block mb-1">Nota de Privacidade e Encerramento:</strong>
+               Em compromisso com a segurança e privacidade, informamos que este site e todos os dados coletados através dele serão integralmente e permanentemente deletados após o encerramento do período de votação.
+             </p>
+          </div>
           
           <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
             <button 

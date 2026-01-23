@@ -6,6 +6,7 @@ import { supabase, T } from '../lib/supabaseClient';
 
 const SupporterSignupSection: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', titleNumber: '', phone: '' });
+  const [acceptedTerms, setAcceptedTerms] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [supporterCount, setSupporterCount] = useState(0);
@@ -184,17 +185,38 @@ const SupporterSignupSection: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-red-900/50 uppercase tracking-widest mb-2 ml-4 block">WhatsApp / Telefone</label>
+                    <label className="text-[10px] font-black text-red-900/50 uppercase tracking-widest mb-2 ml-4 block">WhatsApp / Telefone (Opcional)</label>
                     <input 
                       type="text"
-                      required
                       className="w-full px-8 py-5 bg-gray-50 border border-gray-100 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all font-bold text-red-950 placeholder:text-gray-300"
                       placeholder="(00) 00000-0000"
                       value={formData.phone}
                       onChange={handlePhoneChange}
                     />
                   </div>
-                </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4 px-4 w-full pt-2">
+                    <div className="relative flex items-center pt-1">
+                      <input 
+                        type="checkbox" 
+                        id="compliance-terms"
+                        required
+                        checked={acceptedTerms}
+                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-red-200 bg-white transition-all checked:border-red-500 checked:bg-red-500"
+                      />
+                      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[calc(50%-2px)] text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    <label htmlFor="compliance-terms" className="flex-1 cursor-pointer text-xs font-bold leading-relaxed text-gray-500 select-none">
+                      Aceito o uso dos meus dados para fins de compliance e concordo com as regras do movimento.
+                    </label>
+                  </div>
+
                 
                 <button 
                   type="submit"
