@@ -1,0 +1,7 @@
+{
+  "name": "AESJ - Chapa Kako Blanch",
+  "description": "Plataforma oficial de campanha de Sebastião Claudio Blanch (Kako) para a presidência da AESJ, focada em transparência, modernização e diálogo direto com o sócio.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
