@@ -36,17 +36,17 @@ const AIAssistant: React.FC = () => {
     <div className="fixed bottom-6 right-6 z-[60]">
       {isOpen ? (
         <div className="bg-white w-[350px] sm:w-[400px] h-[500px] rounded-[2rem] shadow-2xl flex flex-col border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-300">
-          <div className="bg-blue-900 p-6 flex justify-between items-center text-white">
+          <div className="bg-red-900 p-6 flex justify-between items-center text-white">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-800 rounded-xl">
+              <div className="p-2 bg-red-800 rounded-xl">
                 <Sparkles size={20} />
               </div>
               <div>
                 <h4 className="font-bold">Assistente Kako</h4>
-                <p className="text-xs text-blue-200">Online agora</p>
+                <p className="text-xs text-red-200">Online agora</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-blue-800 p-2 rounded-full transition-colors">
+            <button onClick={() => setIsOpen(false)} className="hover:bg-red-800 p-2 rounded-full transition-colors">
               <X size={20} />
             </button>
           </div>
@@ -56,7 +56,7 @@ const AIAssistant: React.FC = () => {
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] p-4 rounded-2xl flex gap-3 ${
                   m.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-none' 
+                  ? 'bg-red-600 text-white rounded-tr-none' 
                   : 'bg-white text-gray-800 rounded-tl-none border border-gray-200 shadow-sm'
                 }`}>
                   <div className="mt-1">
@@ -84,11 +84,11 @@ const AIAssistant: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Pergunte sobre as propostas..."
-              className="flex-1 bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none focus:border-blue-400 focus:bg-white transition-all text-sm"
+              className="flex-1 bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none focus:border-red-400 focus:bg-white transition-all text-sm"
             />
             <button 
               onClick={handleSend}
-              className="bg-blue-950 text-white p-3 rounded-xl hover:bg-blue-900 transition-colors"
+              className="bg-red-950 text-white p-3 rounded-xl hover:bg-red-900 transition-colors"
             >
               <Send size={18} />
             </button>
@@ -97,7 +97,7 @@ const AIAssistant: React.FC = () => {
       ) : (
         <button 
           onClick={() => setIsOpen(true)}
-          className="bg-blue-950 text-white p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center gap-3 group relative"
+          className="bg-red-950 text-white p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center gap-3 group relative"
         >
           <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] transition-all duration-500 whitespace-nowrap font-bold text-sm">
             Tire suas dúvidas

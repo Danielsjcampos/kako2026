@@ -22,16 +22,16 @@ const Header: React.FC<HeaderProps> = ({ settings }) => {
                 className="h-10 md:h-12 w-auto object-contain"
               />
             ) : (
-              <span className="text-2xl font-black text-blue-900 tracking-tighter">
-                AESJ <span className="text-blue-500">PARA OS SÓCIOS</span>
+              <span className="text-2xl font-black text-red-900 tracking-tighter">
+                AESJ <span className="text-red-500">PARA OS SÓCIOS</span>
               </span>
             )}
           </div>
           
           <nav className="hidden md:flex space-x-8 items-center">
-            <a href="#propostas" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Propostas</a>
-            <a href="#biografia" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Quem é Kako</a>
-            <a href="#ouvidoria" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Ouvidoria</a>
+            <a href="#propostas" className="text-gray-700 hover:text-red-600 font-medium transition-colors">Propostas</a>
+            <a href="#biografia" className="text-gray-700 hover:text-red-600 font-medium transition-colors">Quem é Kako</a>
+            <a href="#ouvidoria" className="text-gray-700 hover:text-red-600 font-medium transition-colors">Ouvidoria</a>
             <a 
               href={KAKO_BIO.instagram} 
               target="_blank" 

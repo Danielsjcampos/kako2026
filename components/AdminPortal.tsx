@@ -499,7 +499,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
         ]);
         
         setSuggestions(sugData || []);
-        setParticipants(partData || []);
+        const sortedParticipants = (partData || []).sort((a, b) => {
+          const roleA = (a.role || '').toLowerCase();
+          const roleB = (b.role || '').toLowerCase();
+          const isPresA = roleA.includes('presidente') && !roleA.includes('vice');
+          const isPresB = roleB.includes('presidente') && !roleB.includes('vice');
+          if (isPresA && !isPresB) return -1;
+          if (!isPresA && isPresB) return 1;
+          return 0;
+        });
+        setParticipants(sortedParticipants);
         setSupporters(suppData || []);
         setProposals(propData || []);
         setAdminUsers(usersData || []);
@@ -727,7 +736,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
       try {
         // Add title
         doc.setFontSize(18);
-        doc.setTextColor(26, 35, 126); // Blue 900
+        doc.setTextColor(127, 29, 29); // Red 900
         doc.text('Lista Oficial de Apoiadores', 40, 20);
         doc.setFontSize(12);
         doc.text('Chapa Kako Blanch 2026', 40, 28);
@@ -750,7 +759,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           body: tableRows,
           startY: 45,
           theme: 'grid',
-          headStyles: { fillColor: [26, 35, 126], textColor: [255, 255, 255], fontStyle: 'bold' },
+          headStyles: { fillColor: [127, 29, 29], textColor: [255, 255, 255], fontStyle: 'bold' },
           alternateRowStyles: { fillColor: [245, 245, 245] },
           styles: { fontSize: 10, cellPadding: 3 },
           margin: { top: 45 },
@@ -766,39 +775,39 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   if (!isLoggedIn) {
      return (
-      <div className="fixed inset-0 z-[100] bg-blue-950 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[100] bg-red-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-[2rem] p-12 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-blue-600" />
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-400 to-red-600" />
           <button onClick={onClose} className="absolute top-8 right-8 text-gray-400 hover:text-gray-600">
             <X size={24} />
           </button>
           
           <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <Lock className="text-blue-600" size={40} />
+            <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <Lock className="text-red-600" size={40} />
             </div>
-            <h2 className="text-3xl font-black text-blue-950">Acesso Restrito</h2>
+            <h2 className="text-3xl font-black text-red-950">Acesso Restrito</h2>
             <p className="text-gray-500 font-medium mt-2">Identifique-se para continuar</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">E-mail</label>
+              <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">E-mail</label>
               <input 
                 type="email"
                 required
-                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all font-medium"
                 placeholder="admin@aesj.com.br"
                 value={loginForm.email}
                 onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
               />
             </div>
             <div>
-              <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Senha</label>
+              <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Senha</label>
               <input 
                 type="password"
                 required
-                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all font-medium"
                 placeholder="••••••••"
                 value={loginForm.password}
                 onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
@@ -807,7 +816,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             <button 
               type="submit"
               disabled={isLoginLoading}
-              className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20"
+              className="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-900/20"
             >
               {isLoginLoading ? 'Verificando...' : 'Entrar no Portal'}
             </button>
@@ -821,11 +830,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     <div className="fixed inset-0 z-[100] bg-white flex flex-col md:flex-row overflow-hidden">
       
       {/* Mobile Header Overlay */}
-      <div className="md:hidden bg-blue-950 text-white p-4 flex justify-between items-center z-[110]">
+      <div className="md:hidden bg-red-950 text-white p-4 flex justify-between items-center z-[110]">
         <div>
-          <h2 className="text-xl font-black tracking-tighter">PORTAL <span className="text-blue-400">KAKO</span></h2>
+          <h2 className="text-xl font-black tracking-tighter">PORTAL <span className="text-red-400">KAKO</span></h2>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-blue-600 rounded-xl">
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-red-600 rounded-xl">
           {isSidebarOpen ? <X size={24} /> : <LayoutDashboard size={24} />}
         </button>
       </div>
@@ -833,11 +842,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
       {/* Sidebar */}
       <div className={`
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        fixed md:relative top-0 left-0 bottom-0 z-[105] md:z-auto w-72 bg-blue-950 text-white p-8 flex flex-col transition-transform duration-300 ease-in-out
+        fixed md:relative top-0 left-0 bottom-0 z-[105] md:z-auto w-72 bg-red-950 text-white p-8 flex flex-col transition-transform duration-300 ease-in-out
       `}>
         <div className="mb-12 hidden md:block">
-          <h2 className="text-2xl font-black tracking-tighter">PORTAL <span className="text-blue-400">KAKO</span></h2>
-          <p className="text-xs text-blue-300 font-bold uppercase tracking-widest mt-1">Gestão Interna 2026</p>
+          <h2 className="text-2xl font-black tracking-tighter">PORTAL <span className="text-red-400">KAKO</span></h2>
+          <p className="text-xs text-red-300 font-bold uppercase tracking-widest mt-1">Gestão Interna 2026</p>
         </div>
         
         <nav className="flex-1 space-y-2 pt-16 md:pt-0">
@@ -858,7 +867,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   setIsSidebarOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold ${
-                  activeTab === tab.id ? 'bg-blue-600 shadow-lg shadow-blue-900/50' : 'hover:bg-white/5'
+                  activeTab === tab.id ? 'bg-red-600 shadow-lg shadow-red-900/50' : 'hover:bg-white/5'
                 }`}
               >
                 <div className="flex items-center gap-3 text-sm">
@@ -876,7 +885,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             <button onClick={handleLogout} className="w-full flex items-center gap-2 text-red-300 hover:text-red-400 transition-colors font-bold text-sm">
               <Lock size={18} /> Encerrar Sessão
             </button>
-            <button onClick={onClose} className="w-full flex items-center gap-2 text-blue-300 hover:text-white transition-colors font-bold text-sm">
+            <button onClick={onClose} className="w-full flex items-center gap-2 text-red-300 hover:text-white transition-colors font-bold text-sm">
               <X size={18} /> Fechar Painel
             </button>
           </div>
@@ -888,35 +897,35 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           {activeTab === 'dashboard' && (
             <div className="space-y-8">
               <div>
-                <h3 className="text-3xl font-black text-blue-950">Visão Geral</h3>
+                <h3 className="text-3xl font-black text-red-950">Visão Geral</h3>
                 <p className="text-gray-500 mt-2">Acompanhe em tempo real as métricas da campanha.</p>
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-110 transition-transform" />
-                  <Package className="text-blue-600 mb-4 relative z-10" size={32} />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-110 transition-transform" />
+                  <Package className="text-red-600 mb-4 relative z-10" size={32} />
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest relative z-10">Propostas</p>
-                  <p className="text-4xl font-black text-blue-950 mt-1 relative z-10">{proposals.length}</p>
+                  <p className="text-4xl font-black text-red-950 mt-1 relative z-10">{proposals.length}</p>
                 </div>
                 <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-110 transition-transform" />
                   <Heart className="text-red-500 mb-4 relative z-10" size={32} />
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest relative z-10">Apoiadores</p>
-                  <p className="text-4xl font-black text-blue-950 mt-1 relative z-10">{supporters.length}</p>
+                  <p className="text-4xl font-black text-red-950 mt-1 relative z-10">{supporters.length}</p>
                 </div>
                 <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-110 transition-transform" />
                   <MessageSquare className="text-orange-500 mb-4 relative z-10" size={32} />
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest relative z-10">Sugestões</p>
-                  <p className="text-4xl font-black text-blue-950 mt-1 relative z-10">{suggestions.length}</p>
+                  <p className="text-4xl font-black text-red-950 mt-1 relative z-10">{suggestions.length}</p>
                 </div>
                 <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-110 transition-transform" />
                   <Users className="text-purple-600 mb-4 relative z-10" size={32} />
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest relative z-10">Membros</p>
-                  <p className="text-4xl font-black text-blue-950 mt-1 relative z-10">{participants.length}</p>
+                  <p className="text-4xl font-black text-red-950 mt-1 relative z-10">{participants.length}</p>
                 </div>
               </div>
 
@@ -924,7 +933,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Growth Chart */}
                 <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                   <h4 className="text-xl font-black text-blue-950 mb-6">Crescimento da Base</h4>
+                   <h4 className="text-xl font-black text-red-950 mb-6">Crescimento da Base</h4>
                    <div className="h-64 w-full">
                      <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={supporters.reduce((acc: any[], curr) => {
@@ -939,8 +948,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                         }, []).sort((a,b) => a.name.localeCompare(b.name))}> // Simple sort, ideal would be true date sort
                           <defs>
                             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
@@ -957,7 +966,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           <Area 
                             type="monotone" 
                             dataKey="value" 
-                            stroke="#3b82f6" 
+                            stroke="#ef4444" 
                             strokeWidth={3}
                             fillOpacity={1} 
                             fill="url(#colorValue)" 
@@ -969,7 +978,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
                 {/* Categories Chart */}
                 <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                   <h4 className="text-xl font-black text-blue-950 mb-6">Sugestões por Categoria</h4>
+                   <h4 className="text-xl font-black text-red-950 mb-6">Sugestões por Categoria</h4>
                    <div className="h-64 w-full">
                      <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={Object.entries(suggestions.reduce((acc: any, curr) => {
@@ -988,7 +997,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                             cursor={{fill: '#f9fafb'}}
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                           />
-                          <Bar dataKey="value" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={40} />
+                          <Bar dataKey="value" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={40} />
                         </BarChart>
                      </ResponsiveContainer>
                    </div>
@@ -1000,10 +1009,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           {activeTab === 'proposals' && (
             <div>
               <div className="flex justify-between items-center mb-8">
-                <h3 className="text-3xl font-black text-blue-950">Gerenciar Propostas</h3>
+                <h3 className="text-3xl font-black text-red-950">Gerenciar Propostas</h3>
                 <button 
                   onClick={() => { setEditingItem({ title: '', description: '', goal: '', status: 'Planejado', category: 'Gestão' }); setIsModalOpen(true); }}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+                  className="bg-red-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-red-700 shadow-lg shadow-red-900/20"
                 >
                   <Plus size={20} /> Nova Proposta
                 </button>
@@ -1014,21 +1023,21 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-6">
                       <div className={`p-4 rounded-2xl ${
                         p.status === 'Concluído' ? 'bg-green-50 text-green-600' : 
-                        p.status === 'Executando' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-400'
+                        p.status === 'Executando' ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400'
                       }`}>
                         <CheckCircle size={24} />
                       </div>
                       <div className="cursor-pointer" onClick={() => { setEditingItem(p); setIsModalOpen(true); }}>
-                        <h4 className="font-bold text-blue-950 text-lg group-hover:text-blue-600 transition-colors">{p.title}</h4>
+                        <h4 className="font-bold text-red-950 text-lg group-hover:text-red-600 transition-colors">{p.title}</h4>
                         <div className="flex items-center gap-3 mt-1">
                           <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{p.category}</span>
                           <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                          <span className="text-xs font-bold text-blue-500">{p.status}</span>
+                          <span className="text-xs font-bold text-red-500">{p.status}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                       <button onClick={() => { setEditingItem(p); setIsModalOpen(true); }} className="text-gray-300 hover:text-blue-500 p-2 transition-colors">
+                       <button onClick={() => { setEditingItem(p); setIsModalOpen(true); }} className="text-gray-300 hover:text-red-500 p-2 transition-colors">
                         <Edit2 size={20} />
                       </button>
                       <button onClick={() => deleteItem(p.id!, 'proposals')} className="text-gray-300 hover:text-red-500 p-2 transition-colors">
@@ -1044,10 +1053,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           {activeTab === 'participants' && (
             <div>
               <div className="flex justify-between items-center mb-8">
-                <h3 className="text-3xl font-black text-blue-950">Membros da Chapa</h3>
+                <h3 className="text-3xl font-black text-red-950">Membros da Chapa</h3>
                 <button 
                   onClick={() => { setEditingItem({ name: '', role: '', bio: '', photo: '' }); setIsModalOpen(true); }}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+                  className="bg-red-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-red-700 shadow-lg shadow-red-900/20"
                 >
                   <Plus size={20} /> Novo Membro
                 </button>
@@ -1056,20 +1065,20 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 {participants.map((p) => (
                   <div key={p.id} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center justify-between group">
                     <div className="flex items-center gap-4 cursor-pointer" onClick={() => { setEditingItem(p); setIsModalOpen(true); }}>
-                      <div className="w-16 h-16 bg-blue-100 rounded-2xl overflow-hidden flex items-center justify-center shrink-0">
+                      <div className="w-16 h-16 bg-red-100 rounded-2xl overflow-hidden flex items-center justify-center shrink-0">
                         {p.photo ? (
                           <img src={p.photo?.startsWith('http') ? p.photo : `${API_URL}${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
                         ) : (
-                          <User size={32} className="text-blue-400" />
+                          <User size={32} className="text-red-400" />
                         )}
                       </div>
                       <div>
-                        <h4 className="font-bold text-blue-950 text-lg">{p.name}</h4>
-                        <p className="text-xs font-black text-blue-600 uppercase tracking-widest">{p.role}</p>
+                        <h4 className="font-bold text-red-950 text-lg">{p.name}</h4>
+                        <p className="text-xs font-black text-red-600 uppercase tracking-widest">{p.role}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => { setEditingItem(p); setIsModalOpen(true); }} className="text-gray-300 hover:text-blue-500 p-2">
+                      <button onClick={() => { setEditingItem(p); setIsModalOpen(true); }} className="text-gray-300 hover:text-red-500 p-2">
                         <Edit2 size={20} />
                       </button>
                       <button onClick={() => deleteItem(p.id!, 'participants')} className="text-gray-300 hover:text-red-500 p-2">
@@ -1084,21 +1093,21 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
           {activeTab === 'suggestions' && (
             <div>
-              <h3 className="text-3xl font-black text-blue-950 mb-8">Sugestões do Sócio</h3>
+              <h3 className="text-3xl font-black text-red-950 mb-8">Sugestões do Sócio</h3>
               <div className="space-y-4">
                 {suggestions.map((s) => (
                   <div key={s.id} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative group">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex gap-2">
-                        <span className="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-1 rounded-lg tracking-wider">{s.category}</span>
+                        <span className="bg-red-100 text-red-700 text-[10px] font-black uppercase px-2 py-1 rounded-lg tracking-wider">{s.category}</span>
                         {s.is_anonymous && <span className="bg-gray-100 text-gray-600 text-[10px] font-black uppercase px-2 py-1 rounded-lg tracking-wider">Anônimo</span>}
                       </div>
                       <button onClick={() => deleteItem(s.id, 'suggestions')} className="text-gray-300 hover:text-red-500 transition-colors">
                         <Trash2 size={20} />
                       </button>
                     </div>
-                    <h4 className="font-black text-blue-950 text-xl">{s.name}</h4>
-                    {s.title_number && <p className="text-xs font-bold text-blue-500 mt-1 uppercase tracking-widest">Título: {s.title_number}</p>}
+                    <h4 className="font-black text-red-950 text-xl">{s.name}</h4>
+                    {s.title_number && <p className="text-xs font-bold text-red-500 mt-1 uppercase tracking-widest">Título: {s.title_number}</p>}
                     <p className="text-gray-600 mt-4 leading-relaxed text-lg font-medium">{s.message}</p>
                     <div className="mt-6 pt-6 border-t border-gray-50 flex justify-between items-center">
                       <span className="text-xs font-bold text-gray-400">{new Date(s.created_at).toLocaleDateString()}</span>
@@ -1112,7 +1121,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           {activeTab === 'supporters' && (
             <div>
               <div className="flex justify-between items-center mb-8">
-                <h3 className="text-3xl font-black text-blue-950">Base de Apoiadores</h3>
+                <h3 className="text-3xl font-black text-red-950">Base de Apoiadores</h3>
                 <div className="flex gap-3">
                   <button 
                     onClick={exportSupportersCSV}
@@ -1126,22 +1135,22 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-100">
                     <tr>
-                      <th className="px-8 py-5 text-left text-xs font-black text-blue-900 uppercase tracking-widest">Nome</th>
-                      <th className="px-8 py-5 text-left text-xs font-black text-blue-900 uppercase tracking-widest">Título</th>
-                      <th className="px-8 py-5 text-left text-xs font-black text-blue-900 uppercase tracking-widest">Telefone</th>
-                      <th className="px-8 py-5 text-right text-xs font-black text-blue-900 uppercase tracking-widest">Ações</th>
+                      <th className="px-8 py-5 text-left text-xs font-black text-red-900 uppercase tracking-widest">Nome</th>
+                      <th className="px-8 py-5 text-left text-xs font-black text-red-900 uppercase tracking-widest">Título</th>
+                      <th className="px-8 py-5 text-left text-xs font-black text-red-900 uppercase tracking-widest">Telefone</th>
+                      <th className="px-8 py-5 text-right text-xs font-black text-red-900 uppercase tracking-widest">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {supporters.map((s) => (
-                      <tr key={s.id} className="hover:bg-blue-50/50 transition-colors group">
-                        <td className="px-8 py-4 font-bold text-blue-950">{s.name}</td>
+                      <tr key={s.id} className="hover:bg-red-50/50 transition-colors group">
+                        <td className="px-8 py-4 font-bold text-red-950">{s.name}</td>
                         <td className="px-8 py-4 font-medium text-gray-500">{s.title_number || '-'}</td>
                         <td className="px-8 py-4 font-medium text-gray-500">{s.phone || '-'}</td>
                         <td className="px-8 py-4 flex justify-end gap-2">
                            <button 
                             onClick={() => { setEditingItem(s); setIsModalOpen(true); }}
-                            className="bg-gray-100 text-gray-500 p-2 rounded-xl hover:bg-blue-600 hover:text-white transition-all"
+                            className="bg-gray-100 text-gray-500 p-2 rounded-xl hover:bg-red-600 hover:text-white transition-all"
                             title="Editar"
                           >
                             <Edit2 size={16} />
@@ -1172,7 +1181,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           {activeTab === 'marketing' && (
             <div className="max-w-4xl mx-auto h-full flex flex-col">
                <div className="mb-8">
-                 <h3 className="text-3xl font-black text-blue-950">Disparos de Marketing</h3>
+                 <h3 className="text-3xl font-black text-red-950">Disparos de Marketing</h3>
                  <p className="text-gray-500 font-medium mt-2">Envie mensagens em massa para seus {supporters.length} apoiadores.</p>
                </div>
 
@@ -1182,11 +1191,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <form onSubmit={handleMassSend} className="space-y-6">
                       
                       <div>
-                        <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">
+                        <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">
                            Mensagem Principal
                         </label>
                         <textarea 
-                          className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium h-32 text-sm"
+                          className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium h-32 text-sm"
                           placeholder="Olá {nome}, novidades da campanha..."
                           value={marketingForm.message}
                           onChange={(e) => setMarketingForm({...marketingForm, message: e.target.value})}
@@ -1196,11 +1205,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       </div>
 
                       <div>
-                        <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">
+                        <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">
                            URL da Imagem (Opcional)
                         </label>
                         <input 
-                           className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm"
+                           className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm"
                            placeholder="https://..."
                            value={marketingForm.imageUrl}
                            onChange={(e) => setMarketingForm({...marketingForm, imageUrl: e.target.value})}
@@ -1208,11 +1217,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       </div>
 
                       <div>
-                        <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">
+                        <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">
                            Mensagem Final / Rodapé (Opcional)
                         </label>
                         <textarea 
-                          className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium h-20 text-sm"
+                          className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium h-20 text-sm"
                           placeholder="Acesse: www.kakoblanch.com.br"
                           value={marketingForm.footer}
                           onChange={(e) => setMarketingForm({...marketingForm, footer: e.target.value})}
@@ -1220,13 +1229,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       </div>
 
                       <div>
-                        <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">
+                        <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">
                            Intervalo (Segundos)
                         </label>
                         <input 
                            type="number"
                            min="10"
-                           className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm font-mono"
+                           className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm font-mono"
                            value={marketingForm.interval}
                            onChange={(e) => setMarketingForm({...marketingForm, interval: parseInt(e.target.value)})}
                         />
@@ -1236,7 +1245,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       {!sendingProgress.active ? (
                         <button 
                           type="submit"
-                          className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-900/20 flex items-center justify-center gap-2"
+                          className="w-full bg-red-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 shadow-xl shadow-red-900/20 flex items-center justify-center gap-2"
                         >
                           <PlayCircle size={20} /> Iniciar Disparos
                         </button>
@@ -1267,7 +1276,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           </div>
                           <div className="w-full bg-gray-800 rounded-full h-4 overflow-hidden">
                              <div 
-                               className="bg-blue-500 h-full transition-all duration-300"
+                               className="bg-red-500 h-full transition-all duration-300"
                                style={{ width: `${(sendingProgress.current / sendingProgress.total) * 100}%` }}
                              />
                           </div>
@@ -1301,10 +1310,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
           {activeTab === 'users' && (
             <div>
               <div className="flex justify-between items-center mb-8">
-                <h3 className="text-3xl font-black text-blue-950">Administradores do Sistema</h3>
+                <h3 className="text-3xl font-black text-red-950">Administradores do Sistema</h3>
                 <button 
                   onClick={() => { setEditingItem({ email: '', password: '' }); setIsModalOpen(true); }}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+                  className="bg-red-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-red-700 shadow-lg shadow-red-900/20"
                 >
                   <UserPlus size={20} /> Novo Admin
                 </button>
@@ -1317,8 +1326,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                         <Shield size={24} />
                       </div>
                       <div>
-                        <h4 className="font-bold text-blue-950 text-lg">{u.email}</h4>
-                        <p className="text-xs font-bold text-blue-500 uppercase tracking-widest">Acesso Administrativo</p>
+                        <h4 className="font-bold text-red-950 text-lg">{u.email}</h4>
+                        <p className="text-xs font-bold text-red-500 uppercase tracking-widest">Acesso Administrativo</p>
                       </div>
                     </div>
                     <button onClick={() => deleteItem(u.id, 'users')} className="text-red-300 hover:text-red-500 p-2">
@@ -1339,12 +1348,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
           {activeTab === 'config' && (
             <div className="space-y-12">
-              <h3 className="text-3xl font-black text-blue-950">Ajustes do Sistema</h3>
+              <h3 className="text-3xl font-black text-red-950">Ajustes do Sistema</h3>
               
               <div className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-sm space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
                        <ImageIcon size={16} /> Logo do Site (Topo e FAQ)
                     </label>
                     <div className="flex items-center gap-4">
@@ -1372,14 +1381,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           }
                         }}
                       />
-                      <label htmlFor="logo_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
+                      <label htmlFor="logo_upload" className="bg-white border border-gray-100 text-red-600 px-6 py-4 rounded-2xl font-bold hover:bg-red-50 cursor-pointer">
                         Trocar Logo
                       </label>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
                        <ImageIcon size={16} /> Imagem de Compartilhamento (SEO)
                     </label>
                     <div className="flex items-center gap-4">
@@ -1407,19 +1416,19 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           }
                         }}
                       />
-                      <label htmlFor="share_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
+                      <label htmlFor="share_upload" className="bg-white border border-gray-100 text-red-600 px-6 py-4 rounded-2xl font-bold hover:bg-red-50 cursor-pointer">
                         Trocar Capa
                       </label>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
                       <Youtube size={16} /> Link do Vídeo (YouTube)
                     </label>
                     <div className="flex gap-4">
                       <input 
-                        className="flex-1 px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="flex-1 px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         placeholder="https://www.youtube.com/watch?v=..."
                         value={localSettings.youtube_url || ''}
                         onChange={(e) => updateLocalSetting('youtube_url', e.target.value)}
@@ -1428,7 +1437,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
                        <ImageIcon size={16} /> Foto Principal (Hero)
                     </label>
                     <div className="flex items-center gap-4">
@@ -1456,14 +1465,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           }
                         }}
                       />
-                      <label htmlFor="hero_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
+                      <label htmlFor="hero_upload" className="bg-white border border-gray-100 text-red-600 px-6 py-4 rounded-2xl font-bold hover:bg-red-50 cursor-pointer">
                         Trocar Imagem
                       </label>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
                        <ImageIcon size={16} /> Foto da Seção Biografia
                     </label>
                     <div className="flex items-center gap-4">
@@ -1491,7 +1500,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           }
                         }}
                       />
-                      <label htmlFor="bio_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
+                      <label htmlFor="bio_upload" className="bg-white border border-gray-100 text-red-600 px-6 py-4 rounded-2xl font-bold hover:bg-red-50 cursor-pointer">
                         Trocar Imagem
                       </label>
                     </div>
@@ -1506,7 +1515,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <Smartphone className="text-green-600" size={32} />
                   </div>
                   <div>
-                    <h4 className="text-2xl font-black text-blue-950">Integração WhatsApp</h4>
+                    <h4 className="text-2xl font-black text-red-950">Integração WhatsApp</h4>
                     <p className="text-gray-400 font-medium">Evolution API v2.3</p>
                   </div>
                   <div className={`ml-auto px-4 py-2 rounded-full font-bold uppercase text-xs tracking-widest ${
@@ -1520,7 +1529,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block flex items-center gap-2">
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block flex items-center gap-2">
                         <Globe size={14} /> URL da API
                       </label>
                       <input 
@@ -1531,7 +1540,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">
                         API Key (Global)
                       </label>
                       <input 
@@ -1543,7 +1552,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">
                         Nome da Instância
                       </label>
                       <div className="flex flex-col gap-3">
@@ -1557,7 +1566,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           <button 
                             onClick={createInstance}
                             disabled={isCreatingInstance}
-                            className="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-blue-700"
+                            className="bg-red-600 text-white px-4 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-red-700"
                           >
                             {isCreatingInstance ? '...' : 'Criar'}
                           </button>
@@ -1587,14 +1596,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
                     {qrCode && (
                        <div className="bg-white p-4 rounded-xl border border-gray-200 flex flex-col items-center">
-                          <p className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4">Escaneie o QR Code</p>
+                          <p className="text-xs font-black text-red-900 uppercase tracking-widest mb-4">Escaneie o QR Code</p>
                           <img src={qrCode} alt="QR Code WhatsApp" className="w-48 h-48 object-contain" />
                        </div>
                     )}
                   </div>
 
                   <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100">
-                    <h5 className="font-black text-blue-950 mb-6 flex items-center gap-2">
+                    <h5 className="font-black text-red-950 mb-6 flex items-center gap-2">
                       <Send size={18} /> Teste de Envio
                     </h5>
                     <form onSubmit={sendEvolutionMessage} className="space-y-4">
@@ -1619,7 +1628,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       <button 
                         type="submit"
                         disabled={isTestLoading}
-                        className="w-full bg-blue-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-blue-900 disabled:opacity-50"
+                        className="w-full bg-red-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-blue-900 disabled:opacity-50"
                       >
                         {isTestLoading ? 'Enviando...' : 'Enviar Teste'}
                       </button>
@@ -1632,7 +1641,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   <button 
                     onClick={saveAllSettings}
                     disabled={isSaving}
-                    className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 shadow-xl shadow-blue-900/20 flex items-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                    className="bg-red-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-red-700 shadow-xl shadow-red-900/20 flex items-center gap-3 transition-all active:scale-95 disabled:opacity-50"
                   >
                     {isSaving ? <RefreshCw className="animate-spin" /> : <Save />}
                     Salvar Alterações
@@ -1646,12 +1655,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
       {/* Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[110] bg-blue-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[110] bg-red-950/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-12 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onClick={() => { setIsModalOpen(false); setEditingItem(null); }} className="absolute top-6 right-6 sm:top-8 sm:right-8 text-gray-400 hover:text-gray-600">
               <X size={28} />
             </button>
-            <h3 className="text-2xl sm:text-3xl font-black text-blue-950 mb-6 sm:mb-10">
+            <h3 className="text-2xl sm:text-3xl font-black text-red-950 mb-6 sm:mb-10">
               {editingItem?.id ? 'Editar' : 'Novo'} {
                 activeTab === 'proposals' ? 'Proposta' : 
                 activeTab === 'users' ? 'Usuário Admin' : 
@@ -1664,18 +1673,18 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Título</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Título</label>
                       <input 
                         required
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         value={editingItem.title}
                         onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Categoria</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Categoria</label>
                       <select 
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-bold"
                         value={editingItem.category}
                         onChange={(e) => setEditingItem({...editingItem, category: e.target.value})}
                       >
@@ -1689,26 +1698,26 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Descrição Curta</label>
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Descrição Curta</label>
                     <textarea 
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium h-24"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium h-24"
                       value={editingItem.description}
                       onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">🎯 Objetivo</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">🎯 Objetivo</label>
                       <input 
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         value={editingItem.goal}
                         onChange={(e) => setEditingItem({...editingItem, goal: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Status</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Status</label>
                       <select 
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-bold"
                         value={editingItem.status}
                         onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}
                       >
@@ -1723,27 +1732,27 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                  <>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Nome</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Nome</label>
                       <input 
                         required
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         value={editingItem.name}
                         onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Nº Título</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Nº Título</label>
                       <input 
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         value={editingItem.title_number || ''}
                         onChange={(e) => setEditingItem({...editingItem, title_number: e.target.value})}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Telefone / WhatsApp</label>
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Telefone / WhatsApp</label>
                     <input 
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                       placeholder="(00) 00000-0000"
                       value={editingItem.phone || ''}
                       onChange={(e) => setEditingItem({...editingItem, phone: e.target.value})}
@@ -1753,22 +1762,22 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
               ) : activeTab === 'users' ? (
                 <>
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">E-mail de Acesso</label>
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">E-mail de Acesso</label>
                     <input 
                       type="email"
                       required
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                       value={editingItem.email}
                       placeholder="novo-admin@aesj.com.br"
                       onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Senha Provisória</label>
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Senha Provisória</label>
                     <input 
                       type="password"
                       required
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                       value={editingItem.password}
                       placeholder="••••••••"
                       onChange={(e) => setEditingItem({...editingItem, password: e.target.value})}
@@ -1779,7 +1788,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 <>
                   <div className="flex justify-center mb-8">
                     <div className="relative group">
-                      <div className="w-32 h-32 bg-blue-50 rounded-[2rem] overflow-hidden border-2 border-dashed border-blue-200 flex items-center justify-center">
+                      <div className="w-32 h-32 bg-red-50 rounded-[2rem] overflow-hidden border-2 border-dashed border-blue-200 flex items-center justify-center">
                         {editingItem.photo ? (
                           <img src={editingItem.photo?.startsWith('http') ? editingItem.photo : `${API_URL}${editingItem.photo}`} className="w-full h-full object-cover" />
                         ) : <Camera size={40} className="text-blue-200" />}
@@ -1788,7 +1797,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       <button 
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-xl shadow-lg hover:scale-110 transition-transform"
+                        className="absolute bottom-2 right-2 bg-red-600 text-white p-2 rounded-xl shadow-lg hover:scale-110 transition-transform"
                       >
                         <Plus size={16} />
                       </button>
@@ -1796,28 +1805,28 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Nome</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Nome</label>
                       <input 
                         required
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         value={editingItem.name}
                         onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Cargo</label>
+                      <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Cargo</label>
                       <input 
                         required
-                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
                         value={editingItem.role}
                         onChange={(e) => setEditingItem({...editingItem, role: e.target.value})}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-2 block">Biografia</label>
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-2 block">Biografia</label>
                     <textarea 
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium h-32"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 font-medium h-32"
                       value={editingItem.bio}
                       onChange={(e) => setEditingItem({...editingItem, bio: e.target.value})}
                     />
@@ -1828,7 +1837,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <button 
                   type="submit"
-                  className="w-full sm:flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+                  className="w-full sm:flex-1 bg-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-900/20"
                 >
                   Confirmar e Salvar
                 </button>

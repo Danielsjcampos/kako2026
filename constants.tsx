@@ -28,7 +28,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Calendário fixo de eventos e parcerias com sócios entusiastas.",
     eta: "Imediato",
     status: "Planejado",
-    icon: <Calendar className="w-8 h-8 text-blue-600" />
+    icon: <Calendar className="w-8 h-8 text-red-600" />
   },
   {
     id: 2,
@@ -39,7 +39,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Criação de área logada para atas e balancetes financeiros.",
     eta: "Primeiros 100 dias",
     status: "Planejado",
-    icon: <FileText className="w-8 h-8 text-blue-600" />
+    icon: <FileText className="w-8 h-8 text-red-600" />
   },
   {
     id: 3,
@@ -50,7 +50,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Sistema digital de tickets integrado ao portal da chapa.",
     eta: "Mês 1",
     status: "Executando",
-    icon: <MessageSquare className="w-8 h-8 text-blue-600" />
+    icon: <MessageSquare className="w-8 h-8 text-red-600" />
   },
   {
     id: 4,
@@ -61,7 +61,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Cronograma de vistorias técnicas mensais em todas as áreas.",
     eta: "Mês 2",
     status: "Planejado",
-    icon: <Wrench className="w-8 h-8 text-blue-600" />
+    icon: <Wrench className="w-8 h-8 text-red-600" />
   },
   {
     id: 5,
@@ -72,7 +72,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Treinamentos periódicos e revisão de metas e benefícios.",
     eta: "Semestre 1",
     status: "Planejado",
-    icon: <Users className="w-8 h-8 text-blue-600" />
+    icon: <Users className="w-8 h-8 text-red-600" />
   },
   {
     id: 6,
@@ -83,7 +83,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Contratação de estudo urbanístico e aporte para banheiros.",
     eta: "12 meses",
     status: "Planejado",
-    icon: <Hammer className="w-8 h-8 text-blue-600" />
+    icon: <Hammer className="w-8 h-8 text-red-600" />
   },
   {
     id: 7,
@@ -94,7 +94,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Pintura, sinalização e monitoramento eletrônico das vagas.",
     eta: "Mês 4",
     status: "Planejado",
-    icon: <Car className="w-8 h-8 text-blue-600" />
+    icon: <Car className="w-8 h-8 text-red-600" />
   },
   {
     id: 8,
@@ -105,7 +105,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Modernização das catracas e cadastro digital por face.",
     eta: "Mês 3",
     status: "Planejado",
-    icon: <Lock className="w-8 h-8 text-blue-600" />
+    icon: <Lock className="w-8 h-8 text-red-600" />
   },
   {
     id: 9,
@@ -116,7 +116,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Nova casa de máquinas e revitalização dos decks.",
     eta: "Mês 5",
     status: "Planejado",
-    icon: <Waves className="w-8 h-8 text-blue-600" />
+    icon: <Waves className="w-8 h-8 text-red-600" />
   },
   {
     id: 10,
@@ -127,7 +127,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Fundo rotativo para pequenas demandas das comissões.",
     eta: "Contínuo",
     status: "Planejado",
-    icon: <TrendingUp className="w-8 h-8 text-blue-600" />
+    icon: <TrendingUp className="w-8 h-8 text-red-600" />
   },
   {
     id: 11,
@@ -138,7 +138,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Regulamento interno de compras e licitações transparentes.",
     eta: "Mês 2",
     status: "Planejado",
-    icon: <ShieldAlert className="w-8 h-8 text-blue-600" />
+    icon: <ShieldAlert className="w-8 h-8 text-red-600" />
   },
   {
     id: 12,
@@ -149,7 +149,7 @@ export const CAMPAIGN_PROPOSALS: Proposal[] = [
     how_to: "Reuso de água nas piscinas e plantio de mudas nativas.",
     eta: "Semestre 2",
     status: "Planejado",
-    icon: <TrendingUp className="w-8 h-8 text-blue-600" />
+    icon: <TrendingUp className="w-8 h-8 text-red-600" />
   }
 ];
 

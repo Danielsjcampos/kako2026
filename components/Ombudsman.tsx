@@ -131,9 +131,9 @@ const Ombudsman: React.FC = () => {
                       className="sr-only peer"
                       onChange={(e) => setFormData({...formData, name: e.target.checked ? 'Anônimo' : ''})}
                     />
-                    <div className="w-10 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                    <div className="w-10 h-6 bg-gray-200 rounded-full peer peer-checked:bg-red-600 transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
                   </div>
-                  <span className="text-sm font-bold text-gray-600 group-hover:text-blue-900 transition-colors">Desejo enviar minha sugestão de forma anônima</span>
+                  <span className="text-sm font-bold text-gray-600 group-hover:text-red-900 transition-colors">Desejo enviar minha sugestão de forma anônima</span>
                 </label>
               </div>
 
@@ -167,7 +167,7 @@ const Ombudsman: React.FC = () => {
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-950 text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-blue-900 transition-all disabled:opacity-50"
+                className="w-full bg-red-950 text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-red-900 transition-all disabled:opacity-50"
               >
                 {isLoading ? (
                   <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />

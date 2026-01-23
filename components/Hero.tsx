@@ -19,16 +19,16 @@ const Hero: React.FC<HeroProps> = ({ videoUrl, heroImage }) => {
   const videoId = getYoutubeId(videoUrl || 'https://www.youtube.com/watch?v=OSuJnN5N7SI');
 
   return (
-    <section className="pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden relative min-h-screen flex items-center bg-blue-950">
+    <section className="pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden relative min-h-screen flex items-center bg-red-950">
       
       {/* Background Video Layer */}
       {videoId && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* Multi-layer Overlays for depth and readability */}
-          <div className="absolute inset-0 bg-blue-950/60 z-10" /> 
+          <div className="absolute inset-0 bg-red-950/60 z-10" /> 
           <div className="absolute inset-0 z-20 shadow-[inset_0_0_200px_rgba(0,0,0,0.8)]" />
-          <div className="absolute inset-0 z-20 bg-gradient-to-t from-blue-950 via-transparent to-blue-950/40" />
-          <div className="absolute inset-0 z-20 bg-gradient-to-b from-blue-950/30 via-transparent to-transparent" />
+          <div className="absolute inset-0 z-20 bg-gradient-to-t from-red-950 via-transparent to-blue-950/40" />
+          <div className="absolute inset-0 z-20 bg-gradient-to-b from-red-950/30 via-transparent to-transparent" />
 
           {/* Wrapper to maintain aspect ratio and cover correctly across all devices */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full">
@@ -60,7 +60,7 @@ const Hero: React.FC<HeroProps> = ({ videoUrl, heroImage }) => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start max-w-sm mx-auto lg:max-w-none">
               <a 
                 href="#propostas" 
-                className="bg-blue-600 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-[2rem] font-black text-base sm:text-lg hover:bg-blue-700 transition-all shadow-2xl shadow-blue-900/40 flex items-center justify-center gap-3 uppercase tracking-widest"
+                className="bg-red-600 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-[2rem] font-black text-base sm:text-lg hover:bg-red-700 transition-all shadow-2xl shadow-red-900/40 flex items-center justify-center gap-3 uppercase tracking-widest"
               >
                 Ver Propostas
                 <ArrowRight size={20} />
@@ -81,10 +81,10 @@ const Hero: React.FC<HeroProps> = ({ videoUrl, heroImage }) => {
                 alt="Kako Blanch" 
                 className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-blue-950/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-red-950/40 to-transparent" />
             </div>
             {/* Float badge */}
-            <div className="absolute -bottom-10 -left-10 z-20 bg-blue-600 p-8 rounded-[3rem] shadow-2xl border-4 border-white text-white">
+            <div className="absolute -bottom-10 -left-10 z-20 bg-red-600 p-8 rounded-[3rem] shadow-2xl border-4 border-white text-white">
               <p className="text-5xl font-black leading-none italic">2026</p>
               <p className="text-xs font-black uppercase tracking-widest mt-2 whitespace-nowrap">Chapa AESJ Para os Sócios</p>
             </div>

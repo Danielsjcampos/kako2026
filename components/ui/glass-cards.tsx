@@ -135,7 +135,7 @@ const Card: React.FC<CardProps> = ({ title, description, index, totalCards, colo
                         <h3 className="text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">
                             {title}
                         </h3>
-                        <p className="text-xl lg:text-2xl text-blue-100/70 font-medium leading-relaxed max-w-xl">
+                        <p className="text-xl lg:text-2xl text-red-100/70 font-medium leading-relaxed max-w-xl">
                             {description}
                         </p>
                         
@@ -180,7 +180,7 @@ export const StackedCards: React.FC = () => {
     }, []);
 
     return (
-        <section ref={containerRef} className="bg-blue-950 py-32 overflow-visible relative">
+        <section ref={containerRef} className="bg-red-950 py-32 overflow-visible relative">
             {/* Background Grid */}
             <div className="absolute inset-0 z-0">
                 <div 
@@ -198,14 +198,14 @@ export const StackedCards: React.FC = () => {
 
             <div className="max-w-7xl mx-auto px-4 relative z-10">
                 <div className="text-center mb-24">
-                   <div className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-400 px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest mb-6 border border-blue-500/20">
+                   <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-400 px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest mb-6 border border-red-500/20">
                       <Zap size={16} /> Experiência de Navegação
                    </div>
                    <h2 className="text-5xl lg:text-7xl font-black text-white mb-8 tracking-tighter italic">
                        Nossas Propostas <br />
-                       <span className="text-blue-500 underline decoration-blue-500/30 underline-offset-8">em Foco.</span>
+                       <span className="text-red-500 underline decoration-red-500/30 underline-offset-8">em Foco.</span>
                    </h2>
-                   <p className="text-xl text-blue-100/50 max-w-2xl mx-auto font-medium">
+                   <p className="text-xl text-red-100/50 max-w-2xl mx-auto font-medium">
                        Role a tela para ver como cada pilar da nossa gestão se empilha para construir um clube melhor para todos.
                    </p>
                 </div>
