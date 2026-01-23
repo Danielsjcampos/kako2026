@@ -3,7 +3,11 @@ import React from 'react';
 import { Instagram, Menu, X } from 'lucide-react';
 import { KAKO_BIO } from '../constants';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  settings: Record<string, string>;
+}
+
+const Header: React.FC<HeaderProps> = ({ settings }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
@@ -11,9 +15,17 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           <div className="flex items-center">
-            <span className="text-2xl font-black text-blue-900 tracking-tighter">
-              AESJ <span className="text-blue-500">PARA OS SÓCIOS</span>
-            </span>
+            {settings.site_logo ? (
+              <img 
+                src={`http://localhost:3001${settings.site_logo}`} 
+                alt="Logo AESJ" 
+                className="h-10 md:h-12 w-auto object-contain"
+              />
+            ) : (
+              <span className="text-2xl font-black text-blue-900 tracking-tighter">
+                AESJ <span className="text-blue-500">PARA OS SÓCIOS</span>
+              </span>
+            )}
           </div>
           
           <nav className="hidden md:flex space-x-8 items-center">

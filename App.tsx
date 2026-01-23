@@ -43,7 +43,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
-      <Header />
+      <Header settings={settings} />
       
       <main>
         <Hero videoUrl={settings.youtube_url} heroImage={settings.hero_image} />
@@ -109,7 +109,7 @@ const App: React.FC = () => {
         <TransparencySection />
         <SupporterSignupSection />
         <Ombudsman />
-        <FAQSection />
+        <FAQSection settings={settings} />
       </main>
 
       <footer className="bg-white border-t border-gray-100 py-16 pb-8">
