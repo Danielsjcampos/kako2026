@@ -16,6 +16,8 @@ import {
   ShieldAlert
 } from 'lucide-react';
 
+export const API_URL = import.meta.env.PROD ? '' : '${API_URL}';
+
 export const CAMPAIGN_PROPOSALS: Proposal[] = [
   {
     id: 1,

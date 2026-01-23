@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
-import { KAKO_BIO } from '../constants';
+import { KAKO_BIO, API_URL } from '../constants';
 
 interface HeroProps {
   videoUrl?: string;
@@ -77,7 +77,7 @@ const Hero: React.FC<HeroProps> = ({ videoUrl, heroImage }) => {
           <div className="flex-1 relative hidden lg:block w-full">
             <div className="relative z-10 w-full max-w-md ml-auto aspect-square rounded-[4rem] overflow-hidden shadow-2xl border-4 border-white/20 group">
               <img 
-                src={heroImage ? `http://localhost:3001${heroImage}` : KAKO_BIO.photo} 
+                src={heroImage ? `${API_URL}${heroImage}` : KAKO_BIO.photo} 
                 alt="Kako Blanch" 
                 className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
               />

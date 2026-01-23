@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Heart, CheckCircle, ShieldCheck } from 'lucide-react';
+import { API_URL } from '../constants';
 
 const SupporterSignupSection: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', titleNumber: '' });
@@ -20,7 +21,7 @@ const SupporterSignupSection: React.FC = () => {
 
       console.log('Sending supporter data:', payload);
 
-      const response = await fetch('http://localhost:3001/api/supporters', {
+      const response = await fetch(`${API_URL}/api/supporters`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

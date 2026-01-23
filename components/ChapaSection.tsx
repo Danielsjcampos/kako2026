@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Participant } from '../types';
 import { User } from 'lucide-react';
+import { API_URL } from '../constants';
 
 const ChapaSection: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -10,7 +11,7 @@ const ChapaSection: React.FC = () => {
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/participants');
+        const response = await fetch(`${API_URL}/api/participants`);
         const data = await response.json();
         setParticipants(data);
       } catch (err) {
@@ -53,7 +54,7 @@ const ChapaSection: React.FC = () => {
                 <div className="aspect-[4/5] overflow-hidden relative">
                   {member.photo ? (
                     <img 
-                      src={`http://localhost:3001${member.photo}`} 
+                      src={`${API_URL}${member.photo}`} 
                       alt={member.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0" 
                     />

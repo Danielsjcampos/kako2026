@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Calendar, FileText, MessageSquare, Wrench, Users, Hammer, Car, Lock, Waves, TrendingUp } from 'lucide-react';
 import { Proposal } from '../types';
+import { API_URL } from '../constants';
 import HolographicCard from './ui/holographic-card';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -21,7 +22,7 @@ const Proposals: React.FC = () => {
   useEffect(() => {
     const fetchProposals = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/proposals');
+        const response = await fetch(`${API_URL}/api/proposals`);
         const data = await response.json();
         setProposals(data);
       } catch (err) {

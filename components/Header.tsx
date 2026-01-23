@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Instagram, Menu, X } from 'lucide-react';
-import { KAKO_BIO } from '../constants';
+import { KAKO_BIO, API_URL } from '../constants';
 
 interface HeaderProps {
   settings: Record<string, string>;
@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ settings }) => {
           <div className="flex items-center">
             {settings.site_logo ? (
               <img 
-                src={`http://localhost:3001${settings.site_logo}`} 
+                src={`${API_URL}${settings.site_logo}`} 
                 alt="Logo AESJ" 
                 className="h-10 md:h-12 w-auto object-contain"
               />

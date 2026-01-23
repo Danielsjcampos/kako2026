@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FAQ_ITEMS } from '../constants';
+import { FAQ_ITEMS, API_URL } from '../constants';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 
 interface FAQSectionProps {
@@ -16,7 +16,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ settings }) => {
         <div className="text-center mb-16">
           {settings.site_logo ? (
             <img 
-              src={`http://localhost:3001${settings.site_logo}`} 
+              src={`${API_URL}${settings.site_logo}`} 
               alt="Logo AESJ" 
               className="h-16 md:h-20 w-auto object-contain mx-auto mb-6 opacity-80"
             />

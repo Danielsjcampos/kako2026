@@ -29,6 +29,7 @@ import {
   FileDown
 } from 'lucide-react';
 import { FeedbackMessage, Participant, Supporter, Proposal } from '../types';
+import { API_URL } from '../constants';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -72,12 +73,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const [sugRes, partRes, suppRes, propRes, setRes, usersRes] = await Promise.all([
-          fetch('http://localhost:3001/api/suggestions'),
-          fetch('http://localhost:3001/api/participants'),
-          fetch('http://localhost:3001/api/supporters'),
-          fetch('http://localhost:3001/api/proposals'),
-          fetch('http://localhost:3001/api/settings'),
-          fetch('http://localhost:3001/api/admin-users')
+          fetch(`${API_URL}/api/suggestions`),
+          fetch(`${API_URL}/api/participants`),
+          fetch(`${API_URL}/api/supporters`),
+          fetch(`${API_URL}/api/proposals`),
+          fetch(`${API_URL}/api/settings`),
+          fetch(`${API_URL}/api/admin-users`)
         ]);
         
         const [sData, pData, sSupData, prData, settingsData, uData] = await Promise.all([
@@ -107,7 +108,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     e.preventDefault();
     setIsLoginLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/login', {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm)
@@ -145,7 +146,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     const typeKey = endpointMap[type] || type;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/${typeKey}/${id}`, {
+      const response = await fetch(`${API_URL}/api/${typeKey}/${id}`, {
         method: 'DELETE'
       });
       
@@ -180,7 +181,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     };
     
     const typeKey = endpointMap[type] || type;
-    const url = `http://localhost:3001/api/${typeKey}${isEditing ? `/${editingItem.id}` : ''}`;
+    const url = `${API_URL}/api/${typeKey}${isEditing ? `/${editingItem.id}` : ''}`;
 
     try {
       const response = await fetch(url, {
@@ -219,7 +220,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:3001/api/upload', {
+      const response = await fetch(`${API_URL}/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -232,7 +233,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   const updateSetting = async (key: string, value: string) => {
     try {
-      await fetch('http://localhost:3001/api/settings', {
+      await fetch(`${API_URL}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, value })
@@ -504,7 +505,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4 cursor-pointer" onClick={() => { setEditingItem(p); setIsModalOpen(true); }}>
                       <div className="w-16 h-16 bg-blue-100 rounded-2xl overflow-hidden flex items-center justify-center">
                         {p.photo ? (
-                          <img src={`http://localhost:3001${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
+                          <img src={`${API_URL}${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
                         ) : (
                           <User size={32} className="text-blue-400" />
                         )}
@@ -640,7 +641,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.site_logo ? (
-                           <img src={`http://localhost:3001${settings.site_logo}`} className="w-full h-full object-contain p-2" />
+                           <img src={`${API_URL}${settings.site_logo}`} className="w-full h-full object-contain p-2" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -652,7 +653,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           if (!file) return;
                           const formData = new FormData();
                           formData.append('file', file);
-                          const res = await fetch('http://localhost:3001/api/upload', { method: 'POST', body: formData });
+                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
                           const data = await res.json();
                           updateSetting('site_logo', data.url);
                         }}
@@ -670,7 +671,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.share_image ? (
-                           <img src={`http://localhost:3001${settings.share_image}`} className="w-full h-full object-cover" />
+                           <img src={`${API_URL}${settings.share_image}`} className="w-full h-full object-cover" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -682,7 +683,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           if (!file) return;
                           const formData = new FormData();
                           formData.append('file', file);
-                          const res = await fetch('http://localhost:3001/api/upload', { method: 'POST', body: formData });
+                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
                           const data = await res.json();
                           updateSetting('share_image', data.url);
                         }}
@@ -720,7 +721,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.hero_image ? (
-                           <img src={`http://localhost:3001${settings.hero_image}`} className="w-full h-full object-cover" />
+                           <img src={`${API_URL}${settings.hero_image}`} className="w-full h-full object-cover" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -732,7 +733,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           if (!file) return;
                           const formData = new FormData();
                           formData.append('file', file);
-                          const res = await fetch('http://localhost:3001/api/upload', { method: 'POST', body: formData });
+                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
                           const data = await res.json();
                           updateSetting('hero_image', data.url);
                         }}
@@ -750,7 +751,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                         {settings.bio_image ? (
-                           <img src={`http://localhost:3001${settings.bio_image}`} className="w-full h-full object-cover" />
+                           <img src={`${API_URL}${settings.bio_image}`} className="w-full h-full object-cover" />
                         ) : <Upload size={24} className="text-gray-300" />}
                       </div>
                       <input 
@@ -762,7 +763,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                           if (!file) return;
                           const formData = new FormData();
                           formData.append('file', file);
-                          const res = await fetch('http://localhost:3001/api/upload', { method: 'POST', body: formData });
+                          const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
                           const data = await res.json();
                           updateSetting('bio_image', data.url);
                         }}
@@ -885,7 +886,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                     <div className="relative group">
                       <div className="w-32 h-32 bg-blue-50 rounded-[2rem] overflow-hidden border-2 border-dashed border-blue-200 flex items-center justify-center">
                         {editingItem.photo ? (
-                          <img src={`http://localhost:3001${editingItem.photo}`} className="w-full h-full object-cover" />
+                          <img src={`${API_URL}${editingItem.photo}`} className="w-full h-full object-cover" />
                         ) : <Camera size={40} className="text-blue-200" />}
                       </div>
                       <input type="file" ref={fileInputRef} hidden onChange={handleFileUpload} />

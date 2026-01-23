@@ -10,7 +10,7 @@ import ChapaSection from './components/ChapaSection';
 import TransparencySection from './components/TransparencySection';
 import FAQSection from './components/FAQSection';
 import SupporterSignupSection from './components/SupporterSignupSection';
-import { KAKO_BIO } from './constants';
+import { KAKO_BIO, API_URL } from './constants';
 import { Lock, Code2 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -22,8 +22,8 @@ const App: React.FC = () => {
     const fetchData = async () => {
       try {
         const [suppRes, setRes] = await Promise.all([
-          fetch('http://localhost:3001/api/supporters'),
-          fetch('http://localhost:3001/api/settings')
+          fetch(`${API_URL}/api/supporters`),
+          fetch(`${API_URL}/api/settings`)
         ]);
         const suppData = await suppRes.json();
         const settingsData = await setRes.json();
@@ -45,12 +45,12 @@ const App: React.FC = () => {
   useEffect(() => {
     if (settings.site_logo) {
       const link: HTMLLinkElement | null = document.querySelector("link[id='favicon-link']");
-      if (link) link.href = `http://localhost:3001${settings.site_logo}`;
+      if (link) link.href = `${API_URL}${settings.site_logo}`;
     }
     
     if (settings.share_image) {
       const meta: HTMLMetaElement | null = document.querySelector("meta[id='og-image']");
-      if (meta) meta.content = `http://localhost:3001${settings.share_image}`;
+      if (meta) meta.content = `${API_URL}${settings.share_image}`;
     }
   }, [settings]);
 
@@ -92,7 +92,7 @@ const App: React.FC = () => {
             <div className="bg-gray-50 rounded-[4rem] p-8 lg:p-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
               <div className="flex-1">
                 <img 
-                  src={settings.bio_image ? `http://localhost:3001${settings.bio_image}` : "https://www.aesj.com.br/wp-content/uploads/2021/04/espaco-eventos002.jpg"} 
+                  src={settings.bio_image ? `${API_URL}${settings.bio_image}` : "https://www.aesj.com.br/wp-content/uploads/2021/04/espaco-eventos002.jpg"} 
                   alt="Clube AESJ" 
                   className="rounded-[3rem] shadow-2xl"
                 />

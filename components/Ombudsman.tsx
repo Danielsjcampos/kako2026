@@ -2,6 +2,7 @@
 import React from 'react';
 import { Send, CheckCircle2 } from 'lucide-react';
 import { FeedbackMessage } from '../types';
+import { API_URL } from '../constants';
 
 const Ombudsman: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = React.useState(false);
@@ -18,7 +19,7 @@ const Ombudsman: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/suggestions', {
+      const response = await fetch(`${API_URL}/api/suggestions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
