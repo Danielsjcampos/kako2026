@@ -92,7 +92,7 @@ const App: React.FC = () => {
             <div className="bg-gray-50 rounded-[4rem] p-8 lg:p-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
               <div className="flex-1">
                 <img 
-                  src={settings.hero_image ? `http://localhost:3001${settings.hero_image}` : "https://www.aesj.com.br/wp-content/uploads/2021/04/espaco-eventos002.jpg"} 
+                  src={settings.bio_image ? `http://localhost:3001${settings.bio_image}` : "https://www.aesj.com.br/wp-content/uploads/2021/04/espaco-eventos002.jpg"} 
                   alt="Clube AESJ" 
                   className="rounded-[3rem] shadow-2xl"
                 />

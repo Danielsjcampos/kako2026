@@ -742,6 +742,36 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       </label>
                     </div>
                   </div>
+
+                  <div>
+                    <label className="text-xs font-black text-blue-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                       <ImageIcon size={16} /> Foto da Seção Biografia
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
+                        {settings.bio_image ? (
+                           <img src={`http://localhost:3001${settings.bio_image}`} className="w-full h-full object-cover" />
+                        ) : <Upload size={24} className="text-gray-300" />}
+                      </div>
+                      <input 
+                        type="file" 
+                        id="bio_upload" 
+                        hidden 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          const res = await fetch('http://localhost:3001/api/upload', { method: 'POST', body: formData });
+                          const data = await res.json();
+                          updateSetting('bio_image', data.url);
+                        }}
+                      />
+                      <label htmlFor="bio_upload" className="bg-white border border-gray-100 text-blue-600 px-6 py-4 rounded-2xl font-bold hover:bg-blue-50 cursor-pointer">
+                        Trocar Imagem
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
