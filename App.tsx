@@ -49,13 +49,30 @@ const App: React.FC = () => {
   // Update Favicon and SEO Image
   useEffect(() => {
     if (settings.site_logo) {
+      const faviconUrl = settings.site_logo.startsWith('http') ? settings.site_logo : `${API_URL}${settings.site_logo}`;
       const link: HTMLLinkElement | null = document.querySelector("link[id='favicon-link']");
-      if (link) link.href = `${API_URL}${settings.site_logo}`;
+      if (link) link.href = faviconUrl;
     }
     
     if (settings.share_image) {
-      const meta: HTMLMetaElement | null = document.querySelector("meta[id='og-image']");
-      if (meta) meta.content = `${API_URL}${settings.share_image}`;
+      const shareUrl = settings.share_image.startsWith('http') ? settings.share_image : `${API_URL}${settings.share_image}`;
+      
+      // Update OG Image
+      const ogMeta: HTMLMetaElement | null = document.querySelector("meta[property='og:image']");
+      if (ogMeta) ogMeta.content = shareUrl;
+
+      // Update Twitter Image
+      let twitterMeta: HTMLMetaElement | null = document.querySelector("meta[name='twitter:image']");
+      if (!twitterMeta) {
+        twitterMeta = document.createElement('meta');
+        twitterMeta.setAttribute('name', 'twitter:image');
+        document.head.appendChild(twitterMeta);
+      }
+      twitterMeta.content = shareUrl;
+
+      // Update generic image tag if exists
+      const itemPropMeta: HTMLMetaElement | null = document.querySelector("meta[itemprop='image']");
+      if (itemPropMeta) itemPropMeta.content = shareUrl;
     }
   }, [settings]);
 
