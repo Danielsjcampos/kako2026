@@ -1,35 +1,40 @@
 
 import express from 'express';
-import pg from 'pg';
+import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const { Pool } = pg;
 const app = express();
 
-// Ensure uploads directory exists (Note: this is ephemeral on Vercel)
-const uploadDir = '/tmp'; // Use /tmp for Vercel as it is the only writable directory
+// Supabase Configuration
+const supabaseUrl = process.env.SUPABASE_URL || 'https://vpqfwyazxnkdillyzqyi.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwcWZ3eWF6eG5rZGlsbHl6cXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3NDExNjIsImV4cCI6MjA2NDMxNzE2Mn0.IddfzEF4XXD_UYMMMZkXpN0nEpdgr8BIRX4NuaU0I1k';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const uploadDir = '/tmp'; // Vercel ephemeral storage
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+
+// Helper for table names with prefix
+const T = {
+  suggestions: 'KAKO_suggestions',
+  participants: 'KAKO_participants',
+  supporters: 'KAKO_supporters',
+  admin_users: 'KAKO_admin_users',
+  proposals: 'KAKO_proposals',
+  settings: 'KAKO_settings'
+};
 
 // Request logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
-});
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
 });
 
 // Multer Storage Configuration
@@ -45,104 +50,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Initialize Database Tables
-const initDb = async () => {
-  try {
-    const client = await pool.connect();
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS suggestions (
-        id SERIAL PRIMARY KEY,
-        name TEXT,
-        title_number TEXT,
-        category TEXT,
-        message TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        status TEXT DEFAULT 'Pendente',
-        is_anonymous BOOLEAN DEFAULT FALSE
-      );
-
-      CREATE TABLE IF NOT EXISTS participants (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        role TEXT NOT NULL,
-        bio TEXT,
-        photo TEXT,
-        display_order INTEGER DEFAULT 0
-      );
-
-      CREATE TABLE IF NOT EXISTS supporters (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        title_number TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS admin_users (
-        id SERIAL PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS proposals (
-        id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        description TEXT,
-        category TEXT,
-        goal TEXT,
-        how_to TEXT,
-        eta TEXT,
-        status TEXT DEFAULT 'Planejado'
-      );
-
-      CREATE TABLE IF NOT EXISTS settings (
-        id SERIAL PRIMARY KEY,
-        key TEXT UNIQUE NOT NULL,
-        value TEXT
-      );
-
-      -- Ensure existing tables have new columns
-      ALTER TABLE supporters ADD COLUMN IF NOT EXISTS title_number TEXT;
-      ALTER TABLE supporters ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-      ALTER TABLE participants ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
-      ALTER TABLE participants ADD COLUMN IF NOT EXISTS bio TEXT;
-      ALTER TABLE participants ADD COLUMN IF NOT EXISTS photo TEXT;
-    `);
-
-    // Seed Admin User
-    const userRes = await client.query('SELECT * FROM admin_users WHERE email = $1', ['admin@aesj.com.br']);
-    if (userRes.rows.length === 0) {
-      await client.query('INSERT INTO admin_users (email, password) VALUES ($1, $2)', ['admin@aesj.com.br', 'aesj2026']);
-      console.log('Admin user seeded');
-    }
-
-    // Seed Participants if empty
-    const partResCount = await client.query('SELECT count(*) FROM participants');
-    if (partResCount.rows[0].count === '0') {
-      await client.query(`
-        INSERT INTO participants (name, role, bio, photo, display_order) VALUES 
-        ('Kako Blanch', 'Presidente', 'Ex-presidente da AESJ (2014-2020), responsável por modernizações históricas.', '', 1),
-        ('Vice Presidente', 'Vice-Presidente', 'Especialista em gestão esportiva e administrativa.', '', 2)
-      `);
-      console.log('Participants seeded');
-    }
-
-    console.log('Database tables initialized');
-    client.release();
-  } catch (err) {
-    console.error('Error initializing database:', err);
-  }
-};
-
-// Call initDb
-initDb();
-
-// Routes - All routes match the prefix expected by Vercel /api/
+// Routes
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   try {
-    const result = await pool.query('SELECT * FROM admin_users WHERE email = $1 AND password = $2', [email, password]);
-    if (result.rows.length > 0) {
-      res.json({ success: true, user: { email: result.rows[0].email } });
+    const { data, error } = await supabase
+      .from(T.admin_users)
+      .select('*')
+      .eq('email', email)
+      .eq('password', password)
+      .single();
+
+    if (data) {
+      res.json({ success: true, user: { email: data.email } });
     } else {
       res.status(401).json({ success: false, message: 'Credenciais inválidas' });
     }
@@ -153,8 +73,11 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/api/admin-users', async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, email FROM admin_users ORDER BY id ASC');
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from(T.admin_users)
+      .select('id, email')
+      .order('id', { ascending: true });
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -163,11 +86,12 @@ app.get('/api/admin-users', async (req, res) => {
 app.post('/api/admin-users', async (req, res) => {
   const { email, password } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO admin_users (email, password) VALUES ($1, $2) RETURNING id, email',
-      [email, password]
-    );
-    res.status(201).json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.admin_users)
+      .insert([{ email, password }])
+      .select('id, email')
+      .single();
+    res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -175,7 +99,7 @@ app.post('/api/admin-users', async (req, res) => {
 
 app.delete('/api/admin-users/:id', async (req, res) => {
   try {
-    await pool.query('DELETE FROM admin_users WHERE id = $1', [req.params.id]);
+    await supabase.from(T.admin_users).delete().eq('id', req.params.id);
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -185,40 +109,43 @@ app.delete('/api/admin-users/:id', async (req, res) => {
 app.post('/api/upload', upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).send('No file uploaded.');
   const fileUrl = `/uploads/${req.file.filename}`;
-  // NOTE: On Vercel, this file will exist only in /tmp and only for the current execution.
   res.json({ url: fileUrl });
 });
 
 app.get('/api/proposals', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM proposals ORDER BY id ASC');
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from(T.proposals)
+      .select('*')
+      .order('id', { ascending: true });
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 app.post('/api/proposals', async (req, res) => {
-  const { title, description, category, goal, how_to, eta, status } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO proposals (title, description, category, goal, how_to, eta, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [title, description, category, goal, how_to, eta, status]
-    );
-    res.status(201).json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.proposals)
+      .insert([req.body])
+      .select()
+      .single();
+    res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 app.put('/api/proposals/:id', async (req, res) => {
-  const { title, description, category, goal, how_to, eta, status } = req.body;
   try {
-    const result = await pool.query(
-      'UPDATE proposals SET title=$1, description=$2, category=$3, goal=$4, how_to=$5, eta=$6, status=$7 WHERE id=$8 RETURNING *',
-      [title, description, category, goal, how_to, eta, status, req.params.id]
-    );
-    res.json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.proposals)
+      .update(req.body)
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -226,7 +153,7 @@ app.put('/api/proposals/:id', async (req, res) => {
 
 app.delete('/api/proposals/:id', async (req, res) => {
   try {
-    await pool.query('DELETE FROM proposals WHERE id = $1', [req.params.id]);
+    await supabase.from(T.proposals).delete().eq('id', req.params.id);
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -235,34 +162,38 @@ app.delete('/api/proposals/:id', async (req, res) => {
 
 app.get('/api/participants', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM participants ORDER BY display_order ASC, id ASC');
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from(T.participants)
+      .select('*')
+      .order('display_order', { ascending: true });
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 app.post('/api/participants', async (req, res) => {
-  const { name, role, bio, photo } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO participants (name, role, bio, photo) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, role, bio, photo]
-    );
-    res.status(201).json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.participants)
+      .insert([req.body])
+      .select()
+      .single();
+    res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 app.put('/api/participants/:id', async (req, res) => {
-  const { name, role, bio, photo } = req.body;
   try {
-    const result = await pool.query(
-      'UPDATE participants SET name=$1, role=$2, bio=$3, photo=$4 WHERE id=$5 RETURNING *',
-      [name, role, bio, photo, req.params.id]
-    );
-    res.json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.participants)
+      .update(req.body)
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -270,7 +201,7 @@ app.put('/api/participants/:id', async (req, res) => {
 
 app.delete('/api/participants/:id', async (req, res) => {
   try {
-    await pool.query('DELETE FROM participants WHERE id = $1', [req.params.id]);
+    await supabase.from(T.participants).delete().eq('id', req.params.id);
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -279,8 +210,11 @@ app.delete('/api/participants/:id', async (req, res) => {
 
 app.get('/api/supporters', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM supporters ORDER BY created_at DESC');
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from(T.supporters)
+      .select('*')
+      .order('created_at', { ascending: false });
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -289,11 +223,12 @@ app.get('/api/supporters', async (req, res) => {
 app.post('/api/supporters', async (req, res) => {
   const { name, title_number } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO supporters (name, title_number) VALUES ($1, $2) RETURNING *',
-      [name, title_number]
-    );
-    res.status(201).json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.supporters)
+      .insert([{ name, title_number }])
+      .select()
+      .single();
+    res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -301,7 +236,7 @@ app.post('/api/supporters', async (req, res) => {
 
 app.delete('/api/supporters/:id', async (req, res) => {
   try {
-    await pool.query('DELETE FROM supporters WHERE id = $1', [req.params.id]);
+    await supabase.from(T.supporters).delete().eq('id', req.params.id);
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -310,8 +245,11 @@ app.delete('/api/supporters/:id', async (req, res) => {
 
 app.get('/api/suggestions', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM suggestions ORDER BY created_at DESC');
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from(T.suggestions)
+      .select('*')
+      .order('created_at', { ascending: false });
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -320,11 +258,18 @@ app.get('/api/suggestions', async (req, res) => {
 app.post('/api/suggestions', async (req, res) => {
   const { name, titleNumber, category, message, isAnonymous } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO suggestions (name, title_number, category, message, is_anonymous) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, titleNumber, category, message, isAnonymous || false]
-    );
-    res.status(201).json(result.rows[0]);
+    const { data, error } = await supabase
+      .from(T.suggestions)
+      .insert([{ 
+        name, 
+        title_number: titleNumber, 
+        category, 
+        message, 
+        is_anonymous: isAnonymous || false 
+      }])
+      .select()
+      .single();
+    res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -332,11 +277,15 @@ app.post('/api/suggestions', async (req, res) => {
 
 app.get('/api/settings', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM settings');
+    const { data, error } = await supabase
+      .from(T.settings)
+      .select('*');
     const settings = {};
-    result.rows.forEach(row => {
-      settings[row.key] = row.value;
-    });
+    if (data) {
+      data.forEach(row => {
+        settings[row.key] = row.value;
+      });
+    }
     res.json(settings);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -346,10 +295,9 @@ app.get('/api/settings', async (req, res) => {
 app.post('/api/settings', async (req, res) => {
   const { key, value } = req.body;
   try {
-    await pool.query(
-      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
-      [key, value]
-    );
+    const { error } = await supabase
+      .from(T.settings)
+      .upsert({ key, value }, { onConflict: 'key' });
     res.status(200).send('Setting updated');
   } catch (err) {
     res.status(500).json({ error: err.message });
