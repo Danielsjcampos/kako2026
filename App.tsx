@@ -41,6 +41,19 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
+  // Update Favicon and SEO Image
+  useEffect(() => {
+    if (settings.site_logo) {
+      const link: HTMLLinkElement | null = document.querySelector("link[id='favicon-link']");
+      if (link) link.href = `http://localhost:3001${settings.site_logo}`;
+    }
+    
+    if (settings.share_image) {
+      const meta: HTMLMetaElement | null = document.querySelector("meta[id='og-image']");
+      if (meta) meta.content = `http://localhost:3001${settings.share_image}`;
+    }
+  }, [settings]);
+
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Header settings={settings} />
