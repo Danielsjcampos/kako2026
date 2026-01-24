@@ -11,37 +11,7 @@ const TransparencySection: React.FC = () => {
             <span className="text-red-600 font-black tracking-widest uppercase mb-4 block">Compromisso Real</span>
             <h2 className="text-4xl lg:text-5xl font-black text-red-950 mb-8">Transparência não é promessa, é dever.</h2>
             
-            <div className="space-y-8">
-              <div className="flex gap-6">
-                <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 shrink-0">
-                  <FileText size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-red-950 mb-2">Portal da Transparência</h4>
-                  <p className="text-gray-600">Acesso via login para cada sócio visualizar balancetes, notas fiscais e contratos em tempo real.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-6">
-                <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 shrink-0">
-                  <ShieldCheck size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-red-950 mb-2">Auditoria Semestral</h4>
-                  <p className="text-gray-600">Contratação de empresa externa para validar cada centavo investido no clube.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-6">
-                <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 shrink-0">
-                  <Search size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-red-950 mb-2">Atas Públicas</h4>
-                  <p className="text-gray-600">Decisões de diretoria publicadas em até 48h após as reuniões no site oficial.</p>
-                </div>
-              </div>
-            </div>
+            <p className="text-xl text-gray-600 leading-relaxed font-medium"> Publicação das atas das reuniões da diretoria e comissões, do resumo dos contratos firmados. </p>
           </div>
 
           <div className="flex-1 relative">
@@ -52,7 +22,6 @@ const TransparencySection: React.FC = () => {
               
               <div className="space-y-6 text-red-100 leading-relaxed mb-10">
                 <p>"Se eleitos, nossa gestão será pautada pela honestidade intelectual e financeira. O clube voltará a ser gerido por critérios técnicos e pelo desejo da maioria, não de poucos."</p>
-                <p>Nós nos comprometemos a manter este portal vivo durante todo o mandato, servindo como a principal ferramenta de prestação de contas da AESJ.</p>
               </div>
 
               <div className="flex items-center gap-4">

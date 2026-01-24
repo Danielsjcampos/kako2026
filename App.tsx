@@ -143,7 +143,7 @@ const App: React.FC = () => {
         <Proposals />
         <TransparencySection />
         <SupporterSignupSection />
-        <Ombudsman />
+        <Ombudsman settings={settings} />
         <FAQSection settings={settings} />
       </main>
 

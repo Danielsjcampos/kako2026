@@ -1505,6 +1505,41 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                       </label>
                     </div>
                   </div>
+
+                  <div>
+                    <label className="text-xs font-black text-red-900 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                       <ImageIcon size={16} /> Logo da Chapa (Ouvidoria)
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
+                        {settings.chapa_logo ? (
+                           <img src={settings.chapa_logo?.startsWith('http') ? settings.chapa_logo : `${API_URL}${settings.chapa_logo}`} className="w-full h-full object-cover" />
+                        ) : <Upload size={24} className="text-gray-300" />}
+                      </div>
+                      <input 
+                        type="file" 
+                        id="chapa_logo_upload" 
+                        hidden 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `chapa/${Math.random()}.${fileExt}`;
+                            const { data, error } = await supabase.storage.from('uploads').upload(fileName, file);
+                            if (error) throw error;
+                            const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(fileName);
+                            updateSetting('chapa_logo', publicUrl);
+                          } catch (err) {
+                            alert('Erro ao subir logo da chapa');
+                          }
+                        }}
+                      />
+                      <label htmlFor="chapa_logo_upload" className="bg-white border border-gray-100 text-red-600 px-6 py-4 rounded-2xl font-bold hover:bg-red-50 cursor-pointer">
+                        Trocar Imagem
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
 

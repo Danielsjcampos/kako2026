@@ -51,8 +51,8 @@ const Hero: React.FC<HeroProps> = ({ videoUrl, heroImage }) => {
               AESJ 2026: A Retomada é Agora
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-8xl font-black text-white mb-6 sm:mb-8 leading-[1.1] tracking-tighter drop-shadow-2xl">
-              O Clube volta a <br />
-              <span className="text-blue-400">ser do Sócio.</span>
+              AESJ PARA OS SÓCIOS - <br />
+              <span className="text-blue-400">TRANSPARÊNCIA E DIÁLOGO</span>
             </h1>
             <p className="text-lg sm:text-xl text-blue-100/90 mb-8 sm:mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium drop-shadow-md">
               Transparência total, esportes valorizados e manutenção constante. <span className="text-white font-bold underline decoration-blue-500 underline-offset-4">Kako Blanch</span> retorna com a experiência de quem já fez e a inovação de quem quer fazer muito mais.

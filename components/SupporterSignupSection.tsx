@@ -74,6 +74,8 @@ const SupporterSignupSection: React.FC = () => {
     }
   };
 
+  const [showLGPD, setShowLGPD] = useState(false);
+
   if (isSuccess) {
     return (
       <section className="py-24 bg-red-50">
@@ -90,6 +92,32 @@ const SupporterSignupSection: React.FC = () => {
 
   return (
     <section id="apoiar" className="py-24 bg-gray-50 overflow-hidden relative">
+      {/* LGPD Modal */}
+      {showLGPD && (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] p-8 lg:p-12 max-w-2xl w-full shadow-2xl relative animate-in fade-in zoom-in duration-300">
+            <button 
+              onClick={() => setShowLGPD(false)}
+              className="absolute top-6 right-6 text-gray-400 hover:text-red-600 transition-colors"
+            >
+              <Heart size={24} className="rotate-45" />
+            </button>
+            <h3 className="text-2xl font-black text-red-950 mb-6">Termo de Privacidade (LGPD)</h3>
+            <div className="prose prose-red">
+              <p className="text-gray-600 leading-relaxed font-medium">
+                Tendo plena ciência que, se você optar por usar o WhatsApp como canal de comunicação, compartilharemos seu número de telefone com a Meta Platforms Inc. (empresa localizada nos Estados Unidos) para confirmar que você é usuário desse serviço. Recomendamos que você reveja suas configurações de privacidade e leia o aviso de privacidade do WhatsApp para obter informações mais detalhadas sobre o uso que o WhatsApp faz dos Dados Pessoais dos usuários que utilizam seus serviços. Solicitamos que, ao utilizar este serviço, você não envie ou insira informações sensíveis como documentos pessoais e informações financeiras.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowLGPD(false)}
+              className="w-full mt-8 bg-red-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all"
+            >
+              Compreendi e Aceito
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Social Proof Ticker */}
       <div className="absolute top-0 left-0 right-0 bg-red-600/5 py-4 border-b border-red-100 overflow-hidden whitespace-nowrap z-0">
         <div className="flex animate-marquee gap-8 items-center">
@@ -208,12 +236,12 @@ const SupporterSignupSection: React.FC = () => {
                       />
                       <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[calc(50%-2px)] text-white opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          <path fillRule="evenodd" d="M16.707 5.293a1 0 010 1.414l-8 8a1 0 01-1.414 0l-4-4a1 0 011.414-1.414L8 12.586l7.293-7.293a1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </div>
                     </div>
                     <label htmlFor="compliance-terms" className="flex-1 cursor-pointer text-xs font-bold leading-relaxed text-gray-500 select-none">
-                      Aceito o uso dos meus dados para fins de compliance e concordo com as regras do movimento.
+                      Aceito o uso dos meus dados para fins de compliance e concordo com as <button type="button" onClick={() => setShowLGPD(true)} className="text-red-600 hover:underline">regras do movimento</button>.
                     </label>
                   </div>
 

@@ -5,7 +5,11 @@ import { FeedbackMessage } from '../types';
 import { API_URL } from '../constants';
 import { supabase, T } from '../lib/supabaseClient';
 
-const Ombudsman: React.FC = () => {
+interface OmbudsmanProps {
+  settings?: Record<string, string>;
+}
+
+const Ombudsman: React.FC<OmbudsmanProps> = ({ settings }) => {
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [formData, setFormData] = React.useState({
@@ -70,31 +74,26 @@ const Ombudsman: React.FC = () => {
     <section id="ouvidoria" className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-16 items-start">
-          <div className="flex-1">
-            <h2 className="text-4xl lg:text-5xl font-black text-blue-950 mb-6">O Fim da "Panela"</h2>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Chega de decisões tomadas por um pequeno grupo. Em 2026, a <strong>AESJ será governada pelas sugestões dos sócios</strong>. Este canal é a sua linha direta para participar ativamente da nova gestão.
-            </p>
-            <div className="space-y-6">
-              <div className="flex gap-4 items-center">
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
-                  <span className="font-bold">1</span>
-                </div>
-                <p className="text-gray-700 font-medium">Acabamos com o secretismo nas decisões.</p>
+          <div className="flex-1 flex items-center justify-center">
+            {settings?.chapa_logo ? (
+              <div className="relative group w-full max-w-lg">
+                <div className="absolute inset-0 bg-red-600/10 rounded-[3rem] blur-3xl group-hover:bg-red-600/20 transition-all" />
+                <img 
+                  src={settings.chapa_logo.startsWith('http') ? settings.chapa_logo : `${API_URL}${settings.chapa_logo}`} 
+                  alt="Logo da Chapa" 
+                  className="relative z-10 w-full h-auto drop-shadow-2xl animate-float"
+                />
               </div>
-              <div className="flex gap-4 items-center">
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
-                  <span className="font-bold">2</span>
-                </div>
-                <p className="text-gray-700 font-medium">Sua sugestão vira meta administrativa.</p>
+            ) : (
+              <div className="text-center p-12 bg-white rounded-[3rem] shadow-sm border border-gray-100 w-full">
+                <h2 className="text-4xl lg:text-5xl font-black text-red-950 mb-6 uppercase tracking-widest italic">AESJ 2026</h2>
+                <div className="w-24 h-1 bg-red-600 mx-auto rounded-full mb-8" />
+                <p className="text-xl text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
+                  Chapa <span className="text-red-600">Para os Sócios</span> <br />
+                  Transparência e Diálogo
+                </p>
               </div>
-              <div className="flex gap-4 items-center">
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
-                  <span className="font-bold">3</span>
-                </div>
-                <p className="text-gray-700 font-medium">Transparência absoluta: você sabe o que acontece.</p>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="flex-1 w-full">
