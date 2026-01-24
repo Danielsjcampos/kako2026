@@ -127,7 +127,7 @@ const App: React.FC = () => {
                     A experiência do Kako Blanch (2014-2020) é o alicerce, mas o futuro exige mais. Em 2026, trazemos <strong>tudo novo</strong>: novos processos, novas formas de ouvir e o compromisso inabalável de acabar com gestões fechadas.
                   </p>
                   <p>
-                    Hoje, Kako volta para quebrar a "panela". O Clube de Campo Santa Rita não pertence a um grupo, pertence a cada sócio que paga sua mensalidade e quer ver a <strong>AESJ brilhando novamente</strong>...
+                    O Clube de Campo Santa Rita não pertence a um grupo, pertence a cada sócio que paga sua mensalidade e quer ver a <strong>AESJ brilhando novamente</strong>...
                   </p>
                   <blockquote className="border-l-4 border-red-600 pl-6 italic font-medium text-red-900 py-2">
                     "Minha missão em 2026 é abrir as portas e as planilhas para o sócio. Decidiremos juntos."
