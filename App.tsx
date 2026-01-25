@@ -13,6 +13,7 @@ import SupporterSignupSection from './components/SupporterSignupSection';
 import { KAKO_BIO, API_URL } from './constants';
 import { supabase, T } from './lib/supabaseClient';
 import { Lock, Code2 } from 'lucide-react';
+import { CallToAction } from './components/CallToAction';
 
 const App: React.FC = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -138,6 +139,7 @@ const App: React.FC = () => {
           </div>
         </section>
 
+        <CallToAction />
         <ChapaSection />
         <VideoSection videoUrl={settings.youtube_url} />
         <Proposals />
