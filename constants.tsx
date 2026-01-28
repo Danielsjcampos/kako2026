@@ -160,7 +160,7 @@ export const THE_CHAPA = [
     name: "Kako Blanch",
     role: "Presidente",
     bio: "Ex-presidente (2014-2020) com histórico de grandes obras e saneamento financeiro.",
-    photo: "https://autobox33.com.br/fotokako.jpg",
+    photo: "https://vpqfwyazxnkdillyzqyi.supabase.co/storage/v1/object/public/uploads/hero/0.5841456876767906.jpeg",
     phone: ""
   },
   {
@@ -185,7 +185,7 @@ export const KAKO_BIO = {
   name: "Sebastião Claudio Blanch (Kako)",
   experience: "Presidente da AESJ de 2014 a 2020",
   vision: "Resgatar a excelência da AESJ com modernidade, transparência e o fim das 'panelas': em 2026, o sócio volta a mandar no clube.",
-  photo: "https://autobox33.com.br/fotokako.jpg",
+  photo: "https://vpqfwyazxnkdillyzqyi.supabase.co/storage/v1/object/public/uploads/hero/0.5841456876767906.jpeg",
   instagram: "https://www.instagram.com/kakoblanch"
 };
 
